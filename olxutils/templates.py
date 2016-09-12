@@ -41,7 +41,7 @@ class OLXTemplates(object):
         self.lookup = TemplateLookup(directories=self.LOOKUP_DIRS)
 
         # Add custom module directory to python path
-        sys.path.append("{}/{}".format(os.getcwd(), self.MODULES_DIR))
+        sys.path.append(os.path.join(os.getcwd(), self.MODULES_DIR))
 
     def render(self):
         templates = ['course.xml']
