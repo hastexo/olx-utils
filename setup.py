@@ -25,11 +25,13 @@ def package_data(pkg, root_list):
 
 setup(
     name='olx-utils',
-    version='0.0.1',
+    version='0.0.2',
     description='Utilities for edX OLX courses',
     packages=['olxutils'],
     install_requires=[
         'Mako>=1.0.3',
+        'markdown2>=2.3.0',
+        'Pygments>=2.0.1',
     ],
     scripts=package_scripts(["bin"]),
     package_data=package_data("olxutils", ["templates"]),

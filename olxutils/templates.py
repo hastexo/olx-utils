@@ -22,15 +22,36 @@ class OLXTemplates(object):
         "policies": ["json"],
         "problem": ["xml"],
         "sequential": ["xml"],
-        "static": ["html", "js", "md"],
         "tabs": ["xml"],
         "vertical": ["xml"],
         "video": ["xml"],
     }
 
-    LOOKUP_DIRS = ["include"]
+    IMPORTS = [
+        "from olxutils.helpers import OLXHelpers as olx_helpers",
+    ]
 
-    MODULES_DIR = "python_modules"
+    LOOKUP_DIRS = [
+        "include",
+        "templates",
+        "mako",
+        "mako_templates",
+        os.path.join("mako", "templates"),
+        os.path.join(os.path.dirname(__file__), "templates"),
+    ]
+
+    MODULES_DIRS = [
+        "include",
+        "modules",
+        "mako",
+        "mako_modules",
+        os.path.join("mako", "modules"),
+    ]
+
+    DEFAULT_FILTERS = [
+        "unicode",
+        "trim",
+    ]
 
     context = {}
 
@@ -38,10 +59,17 @@ class OLXTemplates(object):
 
     def __init__(self, context):
         self.context = context
-        self.lookup = TemplateLookup(directories=self.LOOKUP_DIRS)
+        self.lookup = TemplateLookup(
+            directories=self.LOOKUP_DIRS,
+            imports=self.IMPORTS,
+            default_filters=self.DEFAULT_FILTERS,
+        )
 
-        # Add custom module directory to python path
-        sys.path.append(os.path.join(os.getcwd(), self.MODULES_DIR))
+        # Add custom module directories to python path
+        cwd = os.getcwd()
+        for module_dir in self.MODULES_DIRS:
+            path = os.path.join(cwd, module_dir)
+            sys.path.append(path)
 
     def render(self):
         templates = ['course.xml']
@@ -63,7 +91,8 @@ class OLXTemplates(object):
             template = Template(
                 filename=filename,
                 lookup=self.lookup,
-                imports=["from olxutils.helpers import olx_date, olx_suffix"]
+                imports=self.IMPORTS,
+                default_filters=self.DEFAULT_FILTERS,
             )
             rendered = template.render(**self.context)
             with open(filename, 'w') as f:
