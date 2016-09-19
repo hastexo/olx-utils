@@ -27,6 +27,10 @@ class OLXTemplates(object):
         "video": ["xml"],
     }
 
+    IMPORTS = [
+        "from olxutils.helpers import OLXHelpers as olx_helpers",
+    ]
+
     LOOKUP_DIRS = [
         "include",
         "templates",
@@ -49,7 +53,10 @@ class OLXTemplates(object):
 
     def __init__(self, context):
         self.context = context
-        self.lookup = TemplateLookup(directories=self.LOOKUP_DIRS)
+        self.lookup = TemplateLookup(
+            directories=self.LOOKUP_DIRS,
+            imports=self.IMPORTS
+        )
 
         # Add custom module directories to python path
         cwd = os.getcwd()
@@ -77,7 +84,7 @@ class OLXTemplates(object):
             template = Template(
                 filename=filename,
                 lookup=self.lookup,
-                imports=["from olxutils.helpers import olx_date, olx_suffix"]
+                imports=self.IMPORTS
             )
             rendered = template.render(**self.context)
             with open(filename, 'w') as f:
