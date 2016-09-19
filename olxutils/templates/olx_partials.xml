@@ -43,7 +43,7 @@ ${olx_helpers.markdown_file(filename)}
   message="${message}">\
 </%def>
 
-<%def name="asset_policy(path, type=None, has_thumbnail=False, locked=False)", filter="trim">\
+<%def name="asset_policy(path, type=None, has_thumbnail=False, locked=False)">\
 <%
     asset_name = path.replace('/', '_')
     base_name = os.path.basename(path)

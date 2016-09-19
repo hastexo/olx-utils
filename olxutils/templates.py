@@ -48,6 +48,11 @@ class OLXTemplates(object):
         os.path.join("mako", "modules"),
     ]
 
+    DEFAULT_FILTERS = [
+        "unicode",
+        "trim",
+    ]
+
     context = {}
 
     lookup = None
@@ -56,7 +61,8 @@ class OLXTemplates(object):
         self.context = context
         self.lookup = TemplateLookup(
             directories=self.LOOKUP_DIRS,
-            imports=self.IMPORTS
+            imports=self.IMPORTS,
+            default_filters=self.DEFAULT_FILTERS,
         )
 
         # Add custom module directories to python path
@@ -85,7 +91,8 @@ class OLXTemplates(object):
             template = Template(
                 filename=filename,
                 lookup=self.lookup,
-                imports=self.IMPORTS
+                imports=self.IMPORTS,
+                default_filters=self.DEFAULT_FILTERS,
             )
             rendered = template.render(**self.context)
             with open(filename, 'w') as f:
