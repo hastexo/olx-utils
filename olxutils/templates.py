@@ -22,7 +22,6 @@ class OLXTemplates(object):
         "policies": ["json"],
         "problem": ["xml"],
         "sequential": ["xml"],
-        "static": ["html", "js", "md"],
         "tabs": ["xml"],
         "vertical": ["xml"],
         "video": ["xml"],
