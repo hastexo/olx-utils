@@ -1,0 +1,79 @@
+<%!
+  import os
+%>
+
+<%namespace file="/course.xml" name="course"/>
+
+<%def name="block_url(block_type, url_name)">block-v1:${course.org()}+${course.course()}+${run_name}+type@${block_type}+block@${url_name}</%def>
+
+<%def name="asset_url(filename)">asset-v1:${course.org()}+${course.course()}+${run_name}+type@asset+block@${filename}</%def>
+
+<%def name="markdown_file(url_name, display_name, filename)">\
+<html
+  url_name="${url_name}"
+  display_name="${display_name}">
+${olx_helpers.markdown_file(filename)}
+</html>\
+</%def>
+
+<%def name="swift_video(url_name, display_name, filename)">\
+<video
+  url_name="${url_name}"
+  display_name="${display_name}"
+  download_video="false"
+  youtube_id_1_0="">
+  <source src="${olx_helpers.swift_tempurl("/{}/{}".format(capture(course.course), filename), end_date) | h}" />
+</video>\
+</%def>
+
+<%def name="pdf(url_name, display_name, filename)">\
+<pdf
+  url_name="${url_name}"
+  display_name="${display_name}"
+  allow_download="false"
+  source_url=""
+  source_text=""
+  url="/static/${filename}"/>\
+</%def>
+
+<%def name="conditional(block_type, url_name, correct='True', message='You must complete {link} before this exercise will be made available.')">\
+<conditional
+  sources="${block_url(block_type, url_name)}"
+  correct="${correct}"
+  message="${message}">\
+</%def>
+
+<%def name="asset_policy(path, type=None, has_thumbnail=False, locked=False)", filter="trim">\
+<%
+    asset_name = path.replace('/', '_')
+    base_name = os.path.basename(path)
+%>
+    "${asset_name}": {
+        "contentType": ${'"{}"'.format(type) if type else "null"},
+        "content_son": {
+            "category": "asset",
+            "course": "${course.course()}",
+            "name": "${asset_name}",
+            "org": "${course.org()}",
+            "revision": null,
+            "run": "${run_name}",
+            "tag": "c4x"
+        },
+        "displayname": "${base_name}",
+        "filename": "${asset_url(asset_name)}",
+        "import_path": "${path}",
+        "locked": ${"true" if locked else "false"},
+        % if not has_thumbnail:
+        "thumbnail_location": null
+        % else:
+        "thumbnail_location": [
+            "c4x",
+            "${course.org()}",
+            "${course.course()}",
+            "thumbnail",
+            "${asset_name}",
+            null
+        ]
+        % endif
+    }\
+</%def>
