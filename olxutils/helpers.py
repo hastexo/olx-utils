@@ -4,6 +4,9 @@
 import textwrap
 import markdown2
 
+from os import environ
+from swiftclient.utils import generate_temp_url
+
 
 class OLXHelpers(object):
     """
@@ -40,3 +43,19 @@ class OLXHelpers(object):
         with open(filename, 'r') as f:
             content = f.read()
         return cls.markdown(content)
+
+    @staticmethod
+    def swift_tempurl(path, date):
+        swift_endpoint=environ.get('SWIFT_ENDPOINT')
+        swift_path=environ.get('SWIFT_PATH')
+        swift_tempurl_key=environ.get('SWIFT_TEMPURL_KEY')
+
+        assert(swift_endpoint)
+        assert(swift_path)
+        assert(swift_tempurl_key)
+
+        path = "{}{}".format(swift_path, path)
+        timestamp = int(date.strftime("%s"))
+        temp_url = generate_temp_url(path, timestamp, swift_tempurl_key, 'GET', absolute=True)
+
+        return "{}{}".format(swift_endpoint, temp_url)
