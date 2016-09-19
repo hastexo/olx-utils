@@ -30,6 +30,8 @@ setup(
     packages=['olxutils'],
     install_requires=[
         'Mako>=1.0.3',
+        'markdown2>=2.3.0',
+        'Pygments>=2.0.1',
     ],
     scripts=package_scripts(["bin"]),
     package_data=package_data("olxutils", ["templates"]),
