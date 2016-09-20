@@ -3,6 +3,7 @@
 
 import textwrap
 import markdown2
+import codecs
 
 from os import environ
 from swiftclient.utils import generate_temp_url
@@ -15,7 +16,7 @@ class OLXHelpers(object):
     """
     @staticmethod
     def suffix(s):
-        return ' ({})'.format(s) if s else ''
+        return u' ({})'.format(s) if s else u''
 
     @staticmethod
     def date(d):
@@ -24,7 +25,7 @@ class OLXHelpers(object):
     @staticmethod
     def markdown(content):
         # Fix up whitespace.
-        if content[0] == "\n":
+        if content[0] == u"\n":
             content = content[1:]
         content.rstrip()
         content = textwrap.dedent(content)
@@ -40,7 +41,7 @@ class OLXHelpers(object):
     @classmethod
     def markdown_file(cls, filename):
         content = ''
-        with open(filename, 'r') as f:
+        with codecs.open(filename, 'r', encoding="utf-8") as f:
             content = f.read()
         return cls.markdown(content)
 
@@ -54,8 +55,8 @@ class OLXHelpers(object):
         assert(swift_path)
         assert(swift_tempurl_key)
 
-        path = "{}{}".format(swift_path, path)
+        path = u"{}{}".format(swift_path, path)
         timestamp = int(date.strftime("%s"))
         temp_url = generate_temp_url(path, timestamp, swift_tempurl_key, 'GET', absolute=True)
 
-        return "{}{}".format(swift_endpoint, temp_url)
+        return u"{}{}".format(swift_endpoint, temp_url)

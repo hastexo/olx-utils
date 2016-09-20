@@ -3,6 +3,7 @@
 import os
 import sys
 import fnmatch
+import codecs
 
 from mako.template import Template
 from mako.lookup import TemplateLookup
@@ -63,6 +64,7 @@ class OLXTemplates(object):
             directories=self.LOOKUP_DIRS,
             imports=self.IMPORTS,
             default_filters=self.DEFAULT_FILTERS,
+            input_encoding='utf-8',
         )
 
         # Add custom module directories to python path
@@ -93,7 +95,8 @@ class OLXTemplates(object):
                 lookup=self.lookup,
                 imports=self.IMPORTS,
                 default_filters=self.DEFAULT_FILTERS,
+                input_encoding='utf-8',
             )
-            rendered = template.render(**self.context)
-            with open(filename, 'w') as f:
+            rendered = template.render_unicode(**self.context)
+            with codecs.open(filename, 'w', 'utf-8') as f:
                 f.write(rendered)
