@@ -20,6 +20,16 @@ ${olx_helpers.markdown_file(filename)}
 </html>\
 </%def>
 
+<%def name="markdown_file_wrapped(url_name, display_name, filename, class_name)">\
+<html
+  url_name="${url_name}"
+  display_name="${display_name}">
+  <div class="${class_name}">
+${olx_helpers.markdown_file(filename)}
+  </div>
+</html>\
+</%def>
+
 <%def name="swift_video(url_name, display_name, filename)">\
 <video
   url_name="${url_name}"
