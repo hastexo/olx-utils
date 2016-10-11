@@ -12,20 +12,20 @@ block-v1:${course.org()}+${course.course()}+${run_name}+type@${block_type}+block
 asset-v1:${course.org()}+${course.course()}+${run_name}+type@asset+block@${filename}\
 </%def>
 
-<%def name="markdown_file(url_name, display_name, filename)">\
+<%def name="markdown_file(url_name, display_name, filename, extras=None)">\
 <html
   url_name="${url_name}"
   display_name="${display_name}">
-${olx_helpers.markdown_file(filename)}
+${olx_helpers.markdown_file(filename, extras)}
 </html>\
 </%def>
 
-<%def name="markdown_file_wrapped(url_name, display_name, filename, class_name)">\
+<%def name="markdown_file_wrapped(url_name, display_name, filename, class_name, extras=None)">\
 <html
   url_name="${url_name}"
   display_name="${display_name}">
   <div class="${class_name}">
-${olx_helpers.markdown_file(filename)}
+${olx_helpers.markdown_file(filename, extras)}
   </div>
 </html>\
 </%def>

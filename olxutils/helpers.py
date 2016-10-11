@@ -23,27 +23,30 @@ class OLXHelpers(object):
         return d.strftime('%Y-%m-%dT%H:%M:%SZ')
 
     @staticmethod
-    def markdown(content):
+    def markdown(content, extras=None):
         # Fix up whitespace.
         if content[0] == u"\n":
             content = content[1:]
         content.rstrip()
         content = textwrap.dedent(content)
 
-        return markdown2.markdown(content, extras=[
-            "code-friendly",
-            "fenced-code-blocks",
-            "footnotes",
-            "tables",
-            "use-file-vars",
-        ])
+        # Default extras
+        if extras is None:
+            extras = [
+                "fenced-code-blocks",
+                "footnotes",
+                "tables",
+                "use-file-vars"
+            ]
+
+        return markdown2.markdown(content, extras)
 
     @classmethod
-    def markdown_file(cls, filename):
+    def markdown_file(cls, filename, extras=None):
         content = ''
         with codecs.open(filename, 'r', encoding="utf-8") as f:
             content = f.read()
-        return cls.markdown(content)
+        return cls.markdown(content, extras)
 
     @staticmethod
     def swift_tempurl(path, date):
