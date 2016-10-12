@@ -39,14 +39,16 @@ class OLXHelpers(object):
                 "use-file-vars"
             ]
 
-        return markdown2.markdown(content, extras)
+        return markdown2.markdown(content,
+                                  extras=extras)
 
     @classmethod
     def markdown_file(cls, filename, extras=None):
         content = ''
         with codecs.open(filename, 'r', encoding="utf-8") as f:
             content = f.read()
-        return cls.markdown(content, extras)
+        return cls.markdown(content,
+                            extras=extras)
 
     @staticmethod
     def swift_tempurl(path, date):
