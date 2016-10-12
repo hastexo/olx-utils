@@ -25,7 +25,7 @@ def package_data(pkg, root_list):
 
 setup(
     name='olx-utils',
-    version='0.0.5',
+    version='0.0.6',
     description='Utilities for edX OLX courses',
     packages=['olxutils'],
     install_requires=[
