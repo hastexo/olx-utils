@@ -97,6 +97,10 @@ class OLXTemplates(object):
                 default_filters=self.DEFAULT_FILTERS,
                 input_encoding='utf-8',
             )
-            rendered = template.render_unicode(**self.context)
+            context = self.context.copy()
+            basename = os.path.basename(filename)
+            stripped = os.path.splitext(basename)[0]
+            context['filename'] = stripped
+            rendered = template.render_unicode(**context)
             with codecs.open(filename, 'w', 'utf-8') as f:
                 f.write(rendered)
