@@ -102,5 +102,10 @@ class OLXTemplates(object):
             stripped = os.path.splitext(basename)[0]
             context['filename'] = stripped
             rendered = template.render_unicode(**context)
+
+            # Remove symlink
+            if os.path.islink(filename):
+                os.unlink(filename)
+
             with codecs.open(filename, 'w', 'utf-8') as f:
                 f.write(rendered)
