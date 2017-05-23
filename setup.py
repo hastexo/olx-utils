@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Set up for olx-utils"""
 
@@ -27,6 +28,18 @@ setup(
     name='olx-utils',
     version='0.0.7',
     description='Utilities for edX OLX courses',
+    url='https://github.io/hastexo/olx-utils',
+    author='hastexo',
+    author_email='pypi@hastexo.com',
+    license='AGPL-3.0',
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Education',
+        'License :: OSI Approved :: GNU Affero General Public License v3',
+        'Operating System :: POSIX :: Linux',
+        'Topic :: Education :: Computer Aided Instruction (CAI)',
+        'Topic :: Education',
+    ],
     packages=['olxutils'],
     install_requires=[
         'Mako>=1.0.3',
