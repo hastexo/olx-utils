@@ -1,4 +1,4 @@
-[![PyPI version](https://img.shields.io/pypi/v/hastexo-olx-utils.svg)](https://pypi.python.org/pypi/hastexo-olx-utils)
+[![PyPI version](https://img.shields.io/pypi/v/olx-utils.svg)](https://pypi.python.org/pypi/olx-utils)
 
 # OLX Utilities
 
