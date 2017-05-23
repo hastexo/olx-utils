@@ -26,9 +26,9 @@ def package_data(pkg, root_list):
 
 setup(
     name='olx-utils',
-    version='0.0.7',
+    version='0.0.8',
     description='Utilities for edX OLX courses',
-    url='https://github.io/hastexo/olx-utils',
+    url='https://github.com/hastexo/olx-utils',
     author='hastexo',
     author_email='pypi@hastexo.com',
     license='AGPL-3.0',
