@@ -1,4 +1,6 @@
 [![PyPI version](https://img.shields.io/pypi/v/olx-utils.svg)](https://pypi.python.org/pypi/olx-utils)
+[![Build Status](https://travis-ci.org/hastexo/olx-utils.svg?branch=master)](https://travis-ci.org/hastexo/olx-utils)
+[![codecov](https://codecov.io/gh/hastexo/olx-utils/branch/master/graph/badge.svg)](https://codecov.io/gh/hastexo/olx-utils)
 
 # OLX Utilities
 
