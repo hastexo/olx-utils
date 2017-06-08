@@ -27,7 +27,7 @@ class OLXHelpers(object):
         # Fix up whitespace.
         if content[0] == u"\n":
             content = content[1:]
-        content.rstrip()
+        content = content.rstrip()
         content = textwrap.dedent(content)
 
         # Default extras
