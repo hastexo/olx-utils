@@ -62,6 +62,10 @@ class OLXHelpers(object):
 
         path = u"{}{}".format(swift_path, path)
         timestamp = int(date.strftime("%s"))
-        temp_url = generate_temp_url(path, timestamp, swift_tempurl_key, 'GET', absolute=True)
+        temp_url = generate_temp_url(path,
+                                     timestamp,
+                                     swift_tempurl_key,
+                                     'GET',
+                                     absolute=True)
 
         return u"{}{}".format(swift_endpoint, temp_url)

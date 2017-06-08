@@ -25,8 +25,9 @@ if __name__ == "__main__":
 
     parser.add_argument('-b', "--create-branch",
                         action="store_true",
-                        help=u"Create a new 'run/NAME' git branch, add changed files, and commit them."
-    )
+                        help=(u"Create a new 'run/NAME' "
+                              u"git branch, add changed files, "
+                              u"and commit them."))
     parser.add_argument('-p', "--public",
                         action="store_true",
                         help=u"Make the course run public"
@@ -54,18 +55,22 @@ if __name__ == "__main__":
         parser.error(message)
 
     if opts.end_date < opts.start_date:
-        message = u"End date [{:%Y-%m-%d}] must be greater than or equal to start date [{:%Y-%m-%d}]."
+        message = (u"End date [{:%Y-%m-%d}] "
+                   u"must be greater than or equal "
+                   u"to start date [{:%Y-%m-%d}].")
         parser.error(message.format(opts.end_date, opts.start_date))
 
     # Create a git branch
     if opts.create_branch:
         try:
-            check_call(u"git rev-parse --verify run/{}".format(opts.name), shell=True)
+            check_call(u"git rev-parse --verify run/{}".format(opts.name),
+                       shell=True)
         except CalledProcessError:
             pass
         else:
             message = (
-                u"The target git branch already exists.  Please delete it and try again.\n"
+                u"The target git branch already exists.  "
+                u"Please delete it and try again.\n"
                 u"You can do so with: \n"
                 u"\n"
                 u"git branch -d run/{}\n"
@@ -106,8 +111,10 @@ if __name__ == "__main__":
     if opts.create_branch:
         # Git add the changed files and commit them.
         try:
-            check_call(u"git add .", shell=True)
-            check_call(u"git commit -m 'New run: {}'".format(opts.name), shell=True)
+            check_call(u"git add .",
+                       shell=True)
+            check_call(u"git commit -m 'New run: {}'".format(opts.name),
+                       shell=True)
         except CalledProcessError:
             sys.stderr.write(u"Error commiting new run.\n")
             sys.exit(1)
