@@ -55,7 +55,7 @@ class MarkdownTest(OLXHelpersTestCase):
                              t[1])
 
     def test_markdown_file(self):
-        extras = ['footnotes', ]
+        extras = ['footnotes', 'fenced-code-blocks']
 
         for e in extras:
             input_file = os.path.join(os.path.dirname(__file__),
