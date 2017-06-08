@@ -6,6 +6,7 @@ import os
 import os.path
 from setuptools import setup
 
+
 def package_scripts(root_list):
     data = []
     for root in root_list:
@@ -13,6 +14,7 @@ def package_scripts(root_list):
             for fname in files:
                 data.append(os.path.join(dirname, fname))
     return data
+
 
 def package_data(pkg, root_list):
     """Generic function to find package_data for `pkg` under `root`."""

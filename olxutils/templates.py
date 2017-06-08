@@ -8,6 +8,7 @@ import codecs
 from mako.template import Template
 from mako.lookup import TemplateLookup
 
+
 class OLXTemplates(object):
     """
     Renders OLX templates.
