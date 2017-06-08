@@ -1,3 +1,5 @@
+import os
+
 from olxutils import helpers
 
 from unittest import TestCase
@@ -51,3 +53,17 @@ class MarkdownTest(OLXHelpersTestCase):
             # Default set of extras
             self.assertEqual(self.h.markdown(t[0]),
                              t[1])
+
+    def test_markdown_file(self):
+        extras = ['footnotes', ]
+
+        for e in extras:
+            input_file = os.path.join(os.path.dirname(__file__),
+                                      '%s.md' % e)
+            output_file = os.path.join(os.path.dirname(__file__),
+                                       '%s.html' % e)
+
+            with open(output_file, 'r') as o:
+                self.assertEqual(self.h.markdown_file(input_file,
+                                                      extras=[e]),
+                                 o.read())
