@@ -24,27 +24,27 @@ if __name__ == "__main__":
             raise argparse.ArgumentTypeError(msg)
 
     parser.add_argument('-b', "--create-branch",
-        action="store_true",
-        help=u"Create a new 'run/NAME' git branch, add changed files, and commit them."
+                        action="store_true",
+                        help=u"Create a new 'run/NAME' git branch, add changed files, and commit them."
     )
     parser.add_argument('-p', "--public",
-        action="store_true",
-        help=u"Make the course run public"
+                        action="store_true",
+                        help=u"Make the course run public"
     )
     parser.add_argument('-s', "--suffix",
-        type=lambda s: unicode(s, 'utf-8'),
-        help=u"The run name suffix"
+                        type=lambda s: unicode(s, 'utf-8'),
+                        help=u"The run name suffix"
     )
     parser.add_argument("name",
-        type=lambda s: unicode(s, 'utf-8'),
-        help=u"The run identifier")
+                        type=lambda s: unicode(s, 'utf-8'),
+                        help=u"The run identifier")
     parser.add_argument("start_date",
-        type=valid_date,
-        help=u"When the course run starts (YYYY-MM-DD)"
+                        type=valid_date,
+                        help=u"When the course run starts (YYYY-MM-DD)"
     )
     parser.add_argument("end_date",
-        type=valid_date,
-        help=u"When the course run ends (YYYY-MM-DD)"
+                        type=valid_date,
+                        help=u"When the course run ends (YYYY-MM-DD)"
     )
 
     opts = parser.parse_args()
