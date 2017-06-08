@@ -52,9 +52,9 @@ class OLXHelpers(object):
 
     @staticmethod
     def swift_tempurl(path, date):
-        swift_endpoint=environ.get('SWIFT_ENDPOINT')
-        swift_path=environ.get('SWIFT_PATH')
-        swift_tempurl_key=environ.get('SWIFT_TEMPURL_KEY')
+        swift_endpoint = environ.get('SWIFT_ENDPOINT')
+        swift_path = environ.get('SWIFT_PATH')
+        swift_tempurl_key = environ.get('SWIFT_TEMPURL_KEY')
 
         assert(swift_endpoint)
         assert(swift_path)
