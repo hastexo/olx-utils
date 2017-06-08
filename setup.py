@@ -26,6 +26,7 @@ def package_data(pkg, root_list):
 
     return {pkg: data}
 
+
 setup(
     name='olx-utils',
     version='0.0.8',
