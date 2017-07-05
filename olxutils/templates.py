@@ -14,20 +14,23 @@ class OLXTemplates(object):
     Renders OLX templates.
 
     """
-    OLX_DIRS = {
-        "about": ["html"],
-        "chapter": ["xml"],
-        "course": ["xml"],
-        "discussion": ["xml"],
-        "html": ["html", "xml"],
-        "info": ["html"],
-        "policies": ["json"],
-        "problem": ["xml"],
-        "sequential": ["xml"],
-        "tabs": ["xml"],
-        "vertical": ["xml"],
-        "video": ["xml"],
-    }
+    OLX_DIRS = [
+        ("static/markdown", "md"),
+        ("static/presentation", "html"),
+        ("about", "html"),
+        ("chapter", "xml"),
+        ("course", "xml"),
+        ("discussion", "xml"),
+        ("html", "html"),
+        ("html", "xml"),
+        ("info", "html"),
+        ("policies", "json"),
+        ("problem", "xml"),
+        ("sequential", "xml"),
+        ("tabs", "xml"),
+        ("vertical", "xml"),
+        ("video", "xml"),
+    ]
 
     IMPORTS = [
         "from olxutils.helpers import OLXHelpers as olx_helpers",
@@ -76,17 +79,16 @@ class OLXTemplates(object):
 
     def render(self):
         templates = ['course.xml']
-        for directory, filetypes in self.OLX_DIRS.iteritems():
-            templates.extend(self._find_templates(directory, filetypes))
+        for directory, filetype in self.OLX_DIRS:
+            templates.extend(self._find_templates(directory, filetype))
 
         self._render_templates(templates)
 
-    def _find_templates(self, directory, filetypes):
+    def _find_templates(self, directory, filetype):
         matches = []
-        for filetype in filetypes:
-            for root, dirnames, filenames in os.walk(directory):
-                for filename in fnmatch.filter(filenames, '*.' + filetype):
-                    matches.append(os.path.join(root, filename))
+        for root, dirnames, filenames in os.walk(directory):
+            for filename in fnmatch.filter(filenames, '*.' + filetype):
+                matches.append(os.path.join(root, filename))
         return matches
 
     def _render_templates(self, templates):
