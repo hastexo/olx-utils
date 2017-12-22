@@ -36,12 +36,16 @@ In order to create a new course run named `newrun`, starting on May 1,
 courseware checkout and run:
 
 ```bash
-new_run.py -b newrun 2017-05-01 2017-10-31
+olx-new-run -b newrun 2017-05-01 2017-10-31
 ```
 
 The `-b` option causes your rendered OLX to be added to a new Git
 branch named `run/newrun`, which you can then import into your Open
 edX content store.
+
+> You can also invoke `olx-new-run` as `new_run.py`. However, this is
+> deprecated and its use is discouraged. `new_run.py` will go away in
+> a future release.
 
 ## License
 
