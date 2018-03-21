@@ -29,7 +29,7 @@ def package_data(pkg, root_list):
 
 setup(
     name='olx-utils',
-    version='0.0.9',
+    version='0.1.0',
     description='Utilities for edX OLX courses',
     url='https://github.com/hastexo/olx-utils',
     author='hastexo',
