@@ -52,3 +52,11 @@ class OLXUtilsCLITestCase(TestCase):
         stdout, stderr = p.communicate()
         self.assertIn("Not a valid date:".encode(),
                       stderr)
+
+
+class NewRunPyTestCase(OLXUtilsCLITestCase):
+    """
+    # Run the CLI tests with the deprecated compatibility alias
+    """
+    
+    CLI_PATH = 'new_run.py'
