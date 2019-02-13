@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-import os
-
 import shlex
 
 from subprocess import Popen, PIPE
@@ -11,8 +9,11 @@ from unittest import TestCase
 
 class OLXUtilsCLITestCase(TestCase):
 
-    CLI_PATH = os.path.join(os.path.dirname(__file__),
-                            '../bin/olx-new-run')
+    # Unqualified name path of the console_script installed by
+    # the setup.py entry_points list. This should be dropped in
+    # the system PATH, so when we subsequently invoke
+    # subprocess.Popen, this should get correctly picked up.
+    CLI_PATH = 'olx-new-run'
 
     # The tests in this class don't use check_call as its use in
     # combination with subprocess.PIPE is strongly discouraged.
