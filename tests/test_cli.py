@@ -17,6 +17,18 @@ class OLXUtilsCLITestCase(TestCase):
     # subprocess.Popen, this should get correctly picked up.
     CLI_PATH = 'olx-new-run'
 
+    def execute_and_check_error(self,
+                                cmdline,
+                                expected_output):
+        args = shlex.split(cmdline)
+        p = Popen(args,
+                  stderr=PIPE)
+        ret = p.wait()
+        self.assertNotEqual(ret, 0)
+        stdout, stderr = p.communicate()
+        self.assertIn(expected_output,
+                      stderr)
+
     # The tests in this class don't use check_call as its use in
     # combination with subprocess.PIPE is strongly discouraged.
     #
@@ -24,36 +36,21 @@ class OLXUtilsCLITestCase(TestCase):
     # https://docs.python.org/3/library/subprocess.html#subprocess.check_call
     def test_invalid_name(self):
         cmdline = '%s _base 2019-01-01 2019-01-31' % self.CLI_PATH
-        args = shlex.split(cmdline)
-        p = Popen(args,
-                  stderr=PIPE)
-        ret = p.wait()
-        self.assertNotEqual(ret, 0)
-        stdout, stderr = p.communicate()
-        self.assertIn("This run name is reserved.".encode(),
-                      stderr)
+        expected_output = "This run name is reserved.".encode()
+        self.execute_and_check_error(cmdline,
+                                     expected_output)
 
     def test_end_before_start_date(self):
         cmdline = '%s foo 2019-02-01 2019-01-31' % self.CLI_PATH
-        args = shlex.split(cmdline)
-        p = Popen(args,
-                  stderr=PIPE)
-        ret = p.wait()
-        self.assertNotEqual(ret, 0)
-        stdout, stderr = p.communicate()
-        self.assertIn("must be greater than or equal".encode(),
-                      stderr)
+        expected_output = "must be greater than or equal".encode()
+        self.execute_and_check_error(cmdline,
+                                     expected_output)
 
     def test_invalid_date(self):
         cmdline = '%s foo 2019-02-01 2019-02-31' % self.CLI_PATH
-        args = shlex.split(cmdline)
-        p = Popen(args,
-                  stderr=PIPE)
-        ret = p.wait()
-        self.assertNotEqual(ret, 0)
-        stdout, stderr = p.communicate()
-        self.assertIn("Not a valid date:".encode(),
-                      stderr)
+        expected_output = "Not a valid date:".encode()
+        self.execute_and_check_error(cmdline,
+                                     expected_output)
 
 
 class MainModuleTestCase(OLXUtilsCLITestCase):
@@ -68,5 +65,4 @@ class NewRunPyTestCase(OLXUtilsCLITestCase):
     """
     # Run the CLI tests with the deprecated compatibility alias
     """
-    
     CLI_PATH = 'new_run.py'
