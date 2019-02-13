@@ -2,6 +2,8 @@ from __future__ import unicode_literals
 
 import shlex
 
+import sys
+
 from subprocess import Popen, PIPE
 
 from unittest import TestCase
@@ -52,6 +54,14 @@ class OLXUtilsCLITestCase(TestCase):
         stdout, stderr = p.communicate()
         self.assertIn("Not a valid date:".encode(),
                       stderr)
+
+
+class MainModuleTestCase(OLXUtilsCLITestCase):
+    """
+    Test the __main__.py module, that is, invoking Python with the -m
+    package option
+    """
+    CLI_PATH = '%s -m olxutils' % sys.executable
 
 
 class NewRunPyTestCase(OLXUtilsCLITestCase):
