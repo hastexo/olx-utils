@@ -9,6 +9,8 @@ import sys
 
 import os
 
+import warnings
+
 from argparse import ArgumentParser, ArgumentTypeError
 
 from datetime import datetime
@@ -182,6 +184,9 @@ class CLI(object):
         command = argv[0]
 
         if os.path.basename(command) == 'new_run.py':
+            warnings.warn('"new_run.py" is deprecated, '
+                          'use "%s new-run" instead' % CANONICAL_COMMAND_NAME,
+                          FutureWarning)
             # Mangle the command into "olx new-run".
             argv[0] = os.path.join(os.path.dirname(command),
                                    CANONICAL_COMMAND_NAME)
