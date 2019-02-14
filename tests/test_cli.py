@@ -24,7 +24,8 @@ from unittest import TestCase
 
 class OLXUtilsCLITestCase(TestCase):
     """
-    Run the CLI by importing the cli module and invoking its main() method.
+    Run the CLI by importing the cli module and invoking its main()
+    method
     """
 
     CLI_PATH = cli.__file__
@@ -48,19 +49,19 @@ class OLXUtilsCLITestCase(TestCase):
             sys.stderr = sys.__stderr__
 
     def test_invalid_name(self):
-        cmdline = '%s _base 2019-01-01 2019-01-31' % self.CLI_PATH
+        cmdline = '%s new-run _base 2019-01-01 2019-01-31' % self.CLI_PATH
         expected_output = "This run name is reserved."
         self.execute_and_check_error(cmdline,
                                      expected_output)
 
     def test_end_before_start_date(self):
-        cmdline = '%s foo 2019-02-01 2019-01-31' % self.CLI_PATH
+        cmdline = '%s new-run foo 2019-02-01 2019-01-31' % self.CLI_PATH
         expected_output = "must be greater than or equal"
         self.execute_and_check_error(cmdline,
                                      expected_output)
 
     def test_invalid_date(self):
-        cmdline = '%s foo 2019-02-01 2019-02-31' % self.CLI_PATH
+        cmdline = '%s new-run foo 2019-02-01 2019-02-31' % self.CLI_PATH
         expected_output = "Not a valid date:"
         self.execute_and_check_error(cmdline,
                                      expected_output)
@@ -69,7 +70,7 @@ class OLXUtilsCLITestCase(TestCase):
 class OLXUtilsCustomArgsTestCase(OLXUtilsCLITestCase):
     """
     Run the CLI by importing the cli module and invoking its main()
-    method, overriding its "args" argument.
+    method, overriding its "args" argument
     """
 
     def execute_and_check_error(self,
@@ -119,13 +120,39 @@ class OLXUtilsShellTestCase(OLXUtilsCLITestCase):
         self.assertIn(expected_output.encode(),
                       stderr)
 
+    def test_invalid_name(self):
+        cmdline = '%s _base 2019-01-01 2019-01-31' % self.CLI_PATH
+        expected_output = "This run name is reserved."
+        self.execute_and_check_error(cmdline,
+                                     expected_output)
 
-class MainModuleTestCase(OLXUtilsShellTestCase):
+    def test_end_before_start_date(self):
+        cmdline = '%s foo 2019-02-01 2019-01-31' % self.CLI_PATH
+        expected_output = "must be greater than or equal"
+        self.execute_and_check_error(cmdline,
+                                     expected_output)
+
+    def test_invalid_date(self):
+        cmdline = '%s foo 2019-02-01 2019-02-31' % self.CLI_PATH
+        expected_output = "Not a valid date:"
+        self.execute_and_check_error(cmdline,
+                                     expected_output)
+
+
+class OLXUtilsShellSubcommandTestCase(OLXUtilsShellTestCase):
+    """
+    Runs the CLI by invoking "olx new-run" in a subprocess, which
+    should be picked up in $PATH.
+    """
+    CLI_PATH = 'olx new-run'
+
+
+class MainModuleSubcommandTestCase(OLXUtilsShellTestCase):
     """
     Test the __main__.py module, that is, invoking Python with the -m
-    package option
+    package option (with a subcommand)
     """
-    CLI_PATH = '%s -m olxutils' % sys.executable
+    CLI_PATH = '%s -m olxutils new-run' % sys.executable
 
 
 class NewRunPyTestCase(OLXUtilsShellTestCase):

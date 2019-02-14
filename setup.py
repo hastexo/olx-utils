@@ -43,6 +43,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
+            'olx=olxutils.cli:main',
             'olx-new-run=olxutils.cli:main',
             'new_run.py=olxutils.cli:main',
         ],

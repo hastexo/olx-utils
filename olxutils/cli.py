@@ -7,6 +7,8 @@ from __future__ import unicode_literals
 
 import sys
 
+import os
+
 from argparse import ArgumentParser, ArgumentTypeError
 
 from datetime import datetime
@@ -14,6 +16,9 @@ from subprocess import check_call, CalledProcessError
 from mako import exceptions
 
 from olxutils.templates import OLXTemplates
+
+# Under which name do we expect the CLI to be generally called?
+CANONICAL_COMMAND_NAME = 'olx'
 
 
 class CLI(object):
@@ -27,39 +32,47 @@ class CLI(object):
                 msg = "Not a valid date: '{0}'.".format(s)
                 raise ArgumentTypeError(msg)
 
-        parser = ArgumentParser(description="Create a new course run")
+        parser = ArgumentParser(prog=CANONICAL_COMMAND_NAME,
+                                description="Open Learning XML (OLX) utility")
 
-        parser.add_argument('-b', "--create-branch",
-                            action="store_true",
-                            help=("Create a new 'run/NAME' "
-                                  "git branch, add changed files, "
-                                  "and commit them."))
-        parser.add_argument('-p', "--public",
-                            action="store_true",
-                            help="Make the course run public")
-        parser.add_argument('-s', "--suffix",
-                            help="The run name suffix")
-        parser.add_argument("name",
-                            help="The run identifier")
-        parser.add_argument("start_date",
-                            type=valid_date,
-                            help="When the course run starts (YYYY-MM-DD)")
-        parser.add_argument("end_date",
-                            type=valid_date,
-                            help="When the course run ends (YYYY-MM-DD)")
+        subparsers = parser.add_subparsers(dest='subcommand')
+        new_run_help = 'Prepare a local source tree for a new course run'
+        new_run_parser = subparsers.add_parser('new-run',
+                                               help=new_run_help)
+
+        new_run_parser.add_argument('-b', "--create-branch",
+                                    action="store_true",
+                                    help=("Create a new 'run/NAME' "
+                                          "git branch, add changed files, "
+                                          "and commit them."))
+        new_run_parser.add_argument('-p', "--public",
+                                    action="store_true",
+                                    help="Make the course run public")
+        new_run_parser.add_argument('-s', "--suffix",
+                                    help="The run name suffix")
+        new_run_parser.add_argument("name",
+                                    help="The run identifier")
+        new_run_parser.add_argument("start_date",
+                                    type=valid_date,
+                                    help="When the course run starts "
+                                         "(YYYY-MM-DD)")
+        new_run_parser.add_argument("end_date",
+                                    type=valid_date,
+                                    help="When the course run ends "
+                                         "(YYYY-MM-DD)")
 
         self.opts = parser.parse_args(args)
 
         if self.opts.name == "_base":
             message = "This run name is reserved.  Please choose another one."
-            parser.error(message)
+            new_run_parser.error(message)
 
         if self.opts.end_date < self.opts.start_date:
             message = ("End date [{:%Y-%m-%d}] "
                        "must be greater than or equal "
                        "to start date [{:%Y-%m-%d}].")
-            parser.error(message.format(self.opts.end_date,
-                                        self.opts.start_date))
+            new_run_parser.error(message.format(self.opts.end_date,
+                                                self.opts.start_date))
 
     def check_branch(self):
         try:
@@ -153,8 +166,40 @@ class CLI(object):
         sys.stderr.write("All done!\n")
 
     def main(self, argv=sys.argv):
+        """Main CLI entry point.
+
+        Checks how we were invoked: either we're being called as just
+        "olx" or "__main__", in which case we can pass the subcommands
+        right through to the argument parser and its subparser(s).
+
+        Or we were called the old way (as olx-new-run), in which case we
+        mangle the system arguments to inject the subcommand.
+
+        Or we were called the *really* old way (as new_run.py), in which
+        case we pretend we got "new-run" as the subcommand.
+        """
+        prefix = '%s-' % CANONICAL_COMMAND_NAME
+        command = argv[0]
+
+        if os.path.basename(command) == 'new_run.py':
+            # Mangle the command into "olx new-run".
+            argv[0] = os.path.join(os.path.dirname(command),
+                                   CANONICAL_COMMAND_NAME)
+            argv.insert(1, 'new-run')
+        elif os.path.basename(command).startswith(prefix):
+            # Drop the prefix, i.e. turn "olx-foo" into "olx foo".
+            argv[0] = os.path.join(os.path.dirname(command),
+                                   CANONICAL_COMMAND_NAME)
+            argv.insert(1,
+                        os.path.basename(command).replace(prefix, ''))
+
         self.parse_args(argv[1:])
-        self.new_run()
+
+        # We could use getattr() here, but even with all our
+        # safeguards in place subcommand is still user input. So just
+        # enumerate and repeat the method names here.
+        if self.opts.subcommand == 'new-run':
+            self.new_run()
 
 
 def main(argv=sys.argv):
