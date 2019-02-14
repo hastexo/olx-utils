@@ -138,9 +138,7 @@ class CLI(object):
         )
         sys.stderr.write(message.format(self.opts.name))
 
-    def main(self, argv=sys.argv):
-        self.parse_args(argv[1:])
-
+    def new_run(self):
         if self.opts.create_branch:
             self.check_branch()
 
@@ -153,6 +151,10 @@ class CLI(object):
             self.show_branch_message()
 
         sys.stderr.write("All done!\n")
+
+    def main(self, argv=sys.argv):
+        self.parse_args(argv[1:])
+        self.new_run()
 
 
 def main(argv=sys.argv):
