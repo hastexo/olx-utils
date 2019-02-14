@@ -29,6 +29,14 @@ class OLXUtilsCLITestCase(TestCase):
     """
 
     CLI_PATH = cli.__file__
+    SUBCOMMAND = 'new-run'
+
+    def create_command(self,
+                       argstring):
+        command = [self.CLI_PATH, argstring]
+        if self.SUBCOMMAND:
+            command.insert(1, self.SUBCOMMAND)
+        return ' '.join(command)
 
     def execute_and_check_error(self,
                                 cmdline,
@@ -49,19 +57,19 @@ class OLXUtilsCLITestCase(TestCase):
             sys.stderr = sys.__stderr__
 
     def test_invalid_name(self):
-        cmdline = '%s new-run _base 2019-01-01 2019-01-31' % self.CLI_PATH
+        cmdline = self.create_command('_base 2019-01-01 2019-01-31')
         expected_output = "This run name is reserved."
         self.execute_and_check_error(cmdline,
                                      expected_output)
 
     def test_end_before_start_date(self):
-        cmdline = '%s new-run foo 2019-02-01 2019-01-31' % self.CLI_PATH
+        cmdline = self.create_command('foo 2019-02-01 2019-01-31')
         expected_output = "must be greater than or equal"
         self.execute_and_check_error(cmdline,
                                      expected_output)
 
     def test_invalid_date(self):
-        cmdline = '%s new-run foo 2019-02-01 2019-02-31' % self.CLI_PATH
+        cmdline = self.create_command('foo 2019-02-01 2019-02-31')
         expected_output = "Not a valid date:"
         self.execute_and_check_error(cmdline,
                                      expected_output)
@@ -102,6 +110,7 @@ class OLXUtilsShellTestCase(OLXUtilsCLITestCase):
     # the system PATH, so when we subsequently invoke
     # subprocess.Popen, this should get correctly picked up.
     CLI_PATH = 'olx-new-run'
+    SUBCOMMAND = None
 
     # The tests in this class don't use check_call as its use in
     # combination with subprocess.PIPE is strongly discouraged.
@@ -120,31 +129,14 @@ class OLXUtilsShellTestCase(OLXUtilsCLITestCase):
         self.assertIn(expected_output.encode(),
                       stderr)
 
-    def test_invalid_name(self):
-        cmdline = '%s _base 2019-01-01 2019-01-31' % self.CLI_PATH
-        expected_output = "This run name is reserved."
-        self.execute_and_check_error(cmdline,
-                                     expected_output)
-
-    def test_end_before_start_date(self):
-        cmdline = '%s foo 2019-02-01 2019-01-31' % self.CLI_PATH
-        expected_output = "must be greater than or equal"
-        self.execute_and_check_error(cmdline,
-                                     expected_output)
-
-    def test_invalid_date(self):
-        cmdline = '%s foo 2019-02-01 2019-02-31' % self.CLI_PATH
-        expected_output = "Not a valid date:"
-        self.execute_and_check_error(cmdline,
-                                     expected_output)
-
 
 class OLXUtilsShellSubcommandTestCase(OLXUtilsShellTestCase):
     """
     Runs the CLI by invoking "olx new-run" in a subprocess, which
     should be picked up in $PATH.
     """
-    CLI_PATH = 'olx new-run'
+    CLI_PATH = 'olx'
+    SUBCOMMAND = 'new-run'
 
 
 class MainModuleSubcommandTestCase(OLXUtilsShellTestCase):
@@ -152,7 +144,8 @@ class MainModuleSubcommandTestCase(OLXUtilsShellTestCase):
     Test the __main__.py module, that is, invoking Python with the -m
     package option (with a subcommand)
     """
-    CLI_PATH = '%s -m olxutils new-run' % sys.executable
+    CLI_PATH = '%s -m olxutils' % sys.executable
+    SUBCOMMAND = 'new-run'
 
 
 class NewRunPyTestCase(OLXUtilsShellTestCase):
@@ -160,3 +153,4 @@ class NewRunPyTestCase(OLXUtilsShellTestCase):
     # Run the CLI tests with the deprecated compatibility alias
     """
     CLI_PATH = 'new_run.py'
+    SUBCOMMAND = None
