@@ -33,11 +33,9 @@ if __name__ == "__main__":
                         help=u"Make the course run public"
     )
     parser.add_argument('-s', "--suffix",
-                        type=lambda s: unicode(s, 'utf-8'),
                         help=u"The run name suffix"
     )
     parser.add_argument("name",
-                        type=lambda s: unicode(s, 'utf-8'),
                         help=u"The run identifier")
     parser.add_argument("start_date",
                         type=valid_date,
