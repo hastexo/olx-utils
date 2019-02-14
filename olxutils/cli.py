@@ -35,21 +35,17 @@ class CLI(object):
                                   u"and commit them."))
         parser.add_argument('-p', "--public",
                             action="store_true",
-                            help=u"Make the course run public"
-        )
+                            help=u"Make the course run public")
         parser.add_argument('-s', "--suffix",
-                            help=u"The run name suffix"
-        )
+                            help=u"The run name suffix")
         parser.add_argument("name",
                             help=u"The run identifier")
         parser.add_argument("start_date",
                             type=valid_date,
-                            help=u"When the course run starts (YYYY-MM-DD)"
-        )
+                            help=u"When the course run starts (YYYY-MM-DD)")
         parser.add_argument("end_date",
                             type=valid_date,
-                            help=u"When the course run ends (YYYY-MM-DD)"
-        )
+                            help=u"When the course run ends (YYYY-MM-DD)")
 
         self.opts = parser.parse_args(args)
 
