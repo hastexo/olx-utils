@@ -93,6 +93,7 @@ class CLI(object):
             sys.stderr.write(message.format(self.opts.name))
             sys.exit(1)
 
+    def create_branch(self):
         try:
             check_call("git checkout -b run/{}".format(self.opts.name),
                        shell=True)
@@ -129,7 +130,7 @@ class CLI(object):
             sys.stderr.write("Error creating policies symlink.\n")
             sys.exit(1)
 
-    def create_branch(self):
+    def add_to_branch(self):
         # Git add the changed files and commit them.
         try:
             check_call("git add .",
@@ -156,13 +157,14 @@ class CLI(object):
     def new_run(self):
         if self.opts.create_branch:
             self.check_branch()
+            self.create_branch()
 
         self.render_templates()
 
         self.create_symlinks()
 
         if self.opts.create_branch:
-            self.create_branch()
+            self.add_to_branch()
             self.show_branch_message()
 
         sys.stderr.write("All done!\n")
