@@ -23,6 +23,9 @@ from unittest import TestCase
 
 
 class OLXUtilsCLITestCase(TestCase):
+    """
+    Run the CLI by importing the cli module and invoking its main() method.
+    """
 
     CLI_PATH = cli.__file__
 
@@ -64,6 +67,10 @@ class OLXUtilsCLITestCase(TestCase):
 
 
 class OLXUtilsCustomArgsTestCase(OLXUtilsCLITestCase):
+    """
+    Run the CLI by importing the cli module and invoking its main()
+    method, overriding its "args" argument.
+    """
 
     def execute_and_check_error(self,
                                 cmdline,
@@ -84,6 +91,10 @@ class OLXUtilsCustomArgsTestCase(OLXUtilsCLITestCase):
 
 
 class OLXUtilsShellTestCase(OLXUtilsCLITestCase):
+    """
+    Runs the CLI by invoking "olx-new-run" in a subprocess, which
+    should be picked up in $PATH.
+    """
 
     # Unqualified name path of the console_script installed by
     # the setup.py entry_points list. This should be dropped in
