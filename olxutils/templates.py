@@ -8,6 +8,11 @@ import codecs
 
 from mako.template import Template
 from mako.lookup import TemplateLookup
+from mako import exceptions
+
+
+class OLXTemplateException(Exception):
+    pass
 
 
 class OLXTemplates(object):
@@ -84,7 +89,10 @@ class OLXTemplates(object):
         for directory, filetype in self.OLX_DIRS:
             templates.extend(self._find_templates(directory, filetype))
 
-        self._render_templates(templates)
+        try:
+            self._render_templates(templates)
+        except:  # noqa: E722
+            raise OLXTemplateException(exceptions.text_error_template)
 
     def _find_templates(self, directory, filetype):
         matches = []
