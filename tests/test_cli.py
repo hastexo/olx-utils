@@ -99,6 +99,26 @@ class OLXUtilsCustomArgsTestCase(OLXUtilsCLITestCase):
             sys.stderr = sys.__stderr__
 
 
+class NewRunPyCustomArgsTestCase(OLXUtilsCustomArgsTestCase):
+    """
+    Run the CLI by importing the cli module and invoking its main()
+    method, overriding its "args" argument and setting argv[0]
+    to "new_run.py"
+    """
+    CLI_PATH = 'new_run.py'
+    SUBCOMMAND = None
+
+
+class OLXNewRunCustomArgsTestCase(OLXUtilsCustomArgsTestCase):
+    """
+    Run the CLI by importing the cli module and invoking its main()
+    method, overriding its "args" argument and setting argv[0]
+    to "olx-new-run"
+    """
+    CLI_PATH = 'olx-new-run'
+    SUBCOMMAND = None
+
+
 class OLXUtilsShellTestCase(OLXUtilsCLITestCase):
     """
     Runs the CLI by invoking "olx-new-run" in a subprocess, which
