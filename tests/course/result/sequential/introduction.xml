@@ -1,0 +1,29 @@
+<sequential
+  url_name="introduction"
+  display_name="How to get started">
+<vertical
+  url_name="introduction_unit_01"
+  display_name="Unit 01">
+<html
+  url_name="introduction_unit_01"
+  filename="introduction_unit_01"
+  display_name="How to get started Unit 01"/>
+</vertical>
+<vertical
+  url_name="introduction_unit_02"
+  display_name="Unit 02">
+<html
+  url_name="introduction_unit_02"
+  filename="introduction_unit_02"
+  display_name="How to get started Unit 02"/>
+</vertical>
+<vertical
+  url_name="introduction_unit_03"
+  display_name="Unit 03">
+<html
+  url_name="introduction_unit_03"
+  filename="introduction_unit_03"
+  display_name="How to get started Unit 03"/>
+</vertical>
+
+</sequential>

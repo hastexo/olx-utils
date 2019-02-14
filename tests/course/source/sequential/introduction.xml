@@ -1,0 +1,3 @@
+<%inherit file="content.xml"/>\
+<%def name="section_name()">How to get started</%def>\
+<%def name='units()'>3</%def>\

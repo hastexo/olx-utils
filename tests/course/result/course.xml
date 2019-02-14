@@ -1,0 +1,7 @@
+<course
+  display_name="Course Name "
+  url_name="foo"
+  course="foo101"
+  org="Foo">
+  <chapter url_name="introduction"/>
+</course>

@@ -1,0 +1,41 @@
+<%namespace file='/olx_partials.xml' name='partials' inheritable="True"/>\
+##
+## These must be set on child templates.
+##
+<%def name='section_name()'/>\
+<%def name='units()'/>\
+##
+## Regular defs.  By convention, non-XML strings are defined here.
+##
+<%def name='section_url()'>${filename}</%def>\
+<%def name='unit_url(unit)'>${self.section_url()}_unit_${unit}</%def>\
+<%def name='unit_name(unit)'>Unit ${unit}</%def>\
+<%def name='html_url(unit)'>${self.section_url()}_unit_${unit}</%def>\
+<%def name='html_name(unit)'>${self.section_name()} Unit ${unit}</%def>\
+##
+## Sequential block definition. Not overridable.
+##
+<sequential
+  url_name="${self.section_url()}"
+  display_name="${self.section_name()}">
+##
+## Units.
+##
+% for unit in ["{:02d}".format(u + 1) for u in range(int(capture(self.units)))]:
+<vertical
+  url_name="${self.unit_url(unit)}"
+  display_name="${self.unit_name(unit)}">
+<html
+  url_name="${self.html_url(unit)}"
+  filename="${self.html_url(unit)}"
+  display_name="${self.html_name(unit)}"/>
+</vertical>
+% endfor
+##
+## Body definition.  Use it in child templates to create more units.
+##
+${self.body()}
+##
+## End of sequential block.
+##
+</sequential>

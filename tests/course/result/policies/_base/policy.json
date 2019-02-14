@@ -1,0 +1,41 @@
+{
+  "course/foo": {
+    "language": "en",
+    "invitation_only": true,
+    "start": "2019-01-01T00:00:00Z",
+    "advertised_start": "2019-01-01T00:00:00Z",
+    "end": "2019-12-31T23:59:59Z",
+    "is_new": true,
+    "catalog_visibility": "both",
+    "max_student_enrollments_allowed": 20,
+    "due": null,
+    "giturl": null,
+    "course_image": "images_course_image.jpg",
+    "advanced_modules": ["hastexo"],
+    "hide_from_toc": false,
+    "ispublic": false,
+    "rerandomize": "never",
+    "show_calculator": false,
+    "showanswer": "attempted",
+    "days_early_for_beta": null,
+    "discussion_topics": {
+      "General": {
+        "id": "i4x-Foo-foo101-course-foo"
+      }
+    },
+    "tabs": [
+      {
+        "name": "Courseware",
+        "type": "courseware"
+      },
+      {
+        "name": "Course Info",
+        "type": "course_info"
+      },
+      {
+        "name": "Progress",
+        "type": "progress"
+      }
+    ]
+  }
+}

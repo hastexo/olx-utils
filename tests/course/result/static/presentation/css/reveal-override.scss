@@ -1,0 +1,192 @@
+@import url(//fonts.googleapis.com/css?family=Cabin:400,700);
+@import url(//fonts.googleapis.com/css?family=Special+Elite:400,700);
+@import url(//fonts.googleapis.com/css?family=Open+Sans+Condensed:300);
+
+.reveal {
+    font-family: "Open Sans Condensed", sans-serif;
+    font-weight: normal;
+    color: #555555;
+
+    strong {
+      color: black;
+    }
+
+    section img {
+        /* Disable background 4px border around images */
+        border: none;
+        background: none;
+        /* Disable box shadow around images */
+        box-shadow: none;
+
+        /* Blow image up to full screen size */
+        height: auto;
+        width: auto;
+        min-height: 80%;
+        max-width: 80%;
+        max-height: 80%;
+        margin: 2%;
+    }
+
+    /* Make sure keyboard shortcuts help is visible */
+    .overlay-help .viewport {
+        th, td {
+            color: white;
+        }
+    }
+
+    /* Blow iframe up to full screen size */
+    iframe {
+        height: 90%;
+        width: 100%;
+        margin: 2%;
+    }
+
+    h1 {
+        font-size: 3em;
+    }
+
+    h2 {
+        font-size: 2em;
+    }
+
+    h3 {
+        font-size: 1.5em;
+    }
+
+    h1, h2 {
+        text-stroke: 1px black;
+        text-shadow:
+            3px 3px 0 #000,
+            -1px -1px 0 #000,
+            1px -1px 0 #000,
+            -1px 1px 0 #000,
+            1px 1px 0 #000;
+        color: white;
+    }
+
+    h3, h4, h5, h6 {
+        text-shadow: none;
+        color: grey;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: "Cabin", sans-serif;
+        font-weight: bold;
+        text-transform: uppercase;
+        strong {
+          color: black;
+          text-shadow: none;
+          font-weight: bold;
+        }
+    }
+
+    .progress span {
+        background-color: black
+    }
+
+    sub {
+        font-size: 25%;
+    }
+
+    .controls {
+        div.navigate-up, div.navigate-up.enabled {
+            border-bottom-color: black
+        }
+
+        div.navigate-down, div.navigate-down.enabled {
+            border-top-color: black
+        }
+
+        div.navigate-left, div.navigate-left.enabled {
+            border-right-color: black
+        }
+
+        div.navigate-right, div.navigate-right.enabled {
+            border-left-color: black
+        }
+    }
+
+    a {
+        font-family: "Special Elite", monospace !important;
+        white-space: nowrap;
+    }
+
+    code {
+        font-family: "Special Elite", monospace !important;
+        color: black !important;
+        text-shadow: none;
+        text-transform: none;
+    }
+
+    pre code {
+        font-family: "Source Code Pro", monospace !important;
+        background: inherit !important;
+        text-shadow: none;
+        text-transform: none;
+    }
+
+    blockquote, q {
+        quotes: "“" "”" "‘" "’";
+        &:before {
+            content: open-quote;
+        }
+        &:after {
+            content: close-quote;
+        }
+    }
+
+    blockquote {
+        background: #f9f9f9;
+        border-left: 10px solid #ccc;
+        margin: 1.5em 10px;
+        padding: 0.5em 10px;
+
+        &:before, &:after {
+            color: #ccc;
+            font-size: 4em;
+            line-height: 0.1em;
+            vertical-align: -0.4em;
+        }
+
+        &:before {
+            margin-right: 0.25em;
+        }
+
+        &:after {
+            margin-left: 0.25em;
+        }
+
+        p {
+            display: inline;
+        }
+    }
+
+    .stamp {
+        position: absolute;
+        color: red !important;
+        font-size: 6em !important;
+        font-family: "Special Elite" !important;
+        transform: rotate(-45deg);
+        position:absolute;
+        left:50%;
+        top:50%;
+        margin-left:-20vw;
+        margin-top:-10vh;
+        text-shadow: none;
+    }
+
+    .caption {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        font-size: small;
+    }
+}
+
+@media print {
+    .reveal {
+        h1, h2, h3, h4, h5, h6 {
+            color: black;
+        }
+    }
+}

@@ -1,0 +1,6 @@
+<%def name='path()'>markdown/${filename}.md</%def>\
+<%block name="html">
+<div class="lab_instructions">
+${olx_helpers.markdown_file(capture(self.path))}
+</div>
+</%block>

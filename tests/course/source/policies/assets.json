@@ -1,0 +1,4 @@
+<%namespace file="/olx_partials.xml" import="asset_policy"/>\
+{
+${asset_policy(u"images/course_image.jpg", u"image/jpeg", True, False)},
+}

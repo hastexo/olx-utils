@@ -1,0 +1,18 @@
+##
+## course.xml: when using olx-utils templates such as olx_partials.xml, this
+## file must be in the root of a template lookup path, and the following must
+## be defined:
+##
+<%def name="display_name()">Course Name</%def>
+<%def name="course()">foo101</%def>
+<%def name="org()">Foo</%def>
+##
+## These require context variables set by olx-utils, and are defined here for
+## convenience:
+##
+<%def name="url_name()">${run_name}</%def>
+<%def name="suffix()">${olx_helpers.suffix(run_suffix)}</%def>
+<%def name="start()">${olx_helpers.date(start_date)}</%def>
+<%def name="end()">${olx_helpers.date(end_date)}</%def>
+<%def name="invitation_only()">${u"false" if is_public else u"true"}</%def>
+<%def name="ispublic()">${u"true" if is_public else u"false"}</%def>

@@ -1,0 +1,99 @@
+<%namespace file='/olx_partials.xml' name='partials' inheritable="True"/>\
+##
+## These must be set on child templates.
+##
+<%def name='section_name()'/>\
+##
+## Regular defs.  By convention, non-XML strings are defined here.
+##
+<%def name='section_url()'>${filename}</%def>\
+<%def name='conditional()'/>\
+<%def name='graded()'>true</%def>\
+<%def name='format()'>Lab</%def>\
+<%def name='introduction_unit_url()'>${self.section_url()}_introduction</%def>\
+<%def name='introduction_unit_name()'>Introduction</%def>\
+<%def name='introduction_html_url()'>${self.section_url()}_introduction</%def>\
+<%def name='introduction_html_name()'>${self.section_name()} Introduction</%def>\
+<%def name='lab_unit_url()'>${self.section_url()}_unit</%def>\
+<%def name='lab_unit_name()'>Lab</%def>\
+<%def name='lab_html_url()'>${self.section_url()}_instructions</%def>\
+<%def name='lab_html_name()'>${self.section_name()} Instructions</%def>\
+<%def name='lab_url()'>${self.section_url()}</%def>\
+<%def name='lab_name()'>${self.section_name()}</%def>\
+##
+## Sequential block definition. Not overridable.
+##
+<sequential
+  url_name="${self.section_url()}"
+  display_name="${self.section_name()}"
+  graded="${self.graded()}"
+  format="${self.format()}">
+##
+## "introduction" block.  Override to create a custom unit.
+##
+<%block name="introduction">
+<vertical
+  url_name="${self.introduction_unit_url()}"
+  display_name="${self.introduction_unit_name()}">
+  <html
+    url_name="${self.introduction_html_url()}"
+    filename="${self.introduction_html_url()}"
+    display_name="${self.introduction_html_name()}"/>
+</vertical>
+</%block>
+##
+## "lab" block.  Override to create a custom unit.
+##
+<%block name="lab">
+<vertical
+  url_name="${self.lab_unit_url()}"
+  display_name="${self.lab_unit_name()}">
+##
+## "lab_instructions" block. Override with no content to disable.
+##
+<%block name="lab_instructions">
+<html
+  url_name="${self.lab_html_url()}"
+  filename="${self.lab_html_url()}"
+  display_name="${self.lab_html_name()}"/>
+</%block>\
+##
+## "hastexo" block. Override with no content to disable.
+##
+<%block name="hastexo">
+% if capture(self.conditional):
+${self.partials.conditional(
+  block_type="hastexo",
+  url_name=capture(self.conditional))}
+% endif
+<hastexo
+  display_name="${self.lab_name()}"
+  url_name="${self.lab_url()}"
+  stack_template_path="hot_lab.yaml"
+  stack_user_name="training"
+  provider="some-provider">
+##
+## "hastexo_tests" block.
+##
+<%block name="hastexo_tests" />
+##
+## End of hastexo block.
+##
+</hastexo>
+% if capture(self.conditional):
+</conditional>
+% endif
+</%block>
+##
+## End of lab block.
+##
+</vertical>
+</%block>
+##
+## Body definition.  Use it in child templates to create more units.
+##
+${self.body()}
+##
+## End of sequential block.
+##
+</sequential>

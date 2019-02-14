@@ -1,0 +1,26 @@
+{
+    "images_course_image.jpg": {
+        "contentType": "image/jpeg",
+        "content_son": {
+            "category": "asset",
+            "course": "foo101",
+            "name": "images_course_image.jpg",
+            "org": "Foo",
+            "revision": null,
+            "run": "foo",
+            "tag": "c4x"
+        },
+        "displayname": "course_image.jpg",
+        "filename": "asset-v1:Foo+foo101+foo+type@asset+block@images_course_image.jpg",
+        "import_path": "images/course_image.jpg",
+        "locked": false,
+        "thumbnail_location": [
+            "c4x",
+            "Foo",
+            "foo101",
+            "thumbnail",
+            "images_course_image.jpg",
+            null
+        ]
+    },
+}

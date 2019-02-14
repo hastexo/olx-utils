@@ -1,0 +1,42 @@
+<%namespace file="/course.xml" name="course"/>\
+{
+  "course/${course.url_name()}": {
+    "language": "en",
+    "invitation_only": ${course.invitation_only()},
+    "start": "${course.start()}",
+    "advertised_start": "${course.start()}",
+    "end": "${course.end()}",
+    "is_new": true,
+    "catalog_visibility": "both",
+    "max_student_enrollments_allowed": 20,
+    "due": null,
+    "giturl": null,
+    "course_image": "images_course_image.jpg",
+    "advanced_modules": ["hastexo"],
+    "hide_from_toc": false,
+    "ispublic": ${course.ispublic()},
+    "rerandomize": "never",
+    "show_calculator": false,
+    "showanswer": "attempted",
+    "days_early_for_beta": null,
+    "discussion_topics": {
+      "General": {
+        "id": "i4x-${course.org()}-${course.course()}-course-${course.url_name()}"
+      }
+    },
+    "tabs": [
+      {
+        "name": "Courseware",
+        "type": "courseware"
+      },
+      {
+        "name": "Course Info",
+        "type": "course_info"
+      },
+      {
+        "name": "Progress",
+        "type": "progress"
+      }
+    ]
+  }
+}

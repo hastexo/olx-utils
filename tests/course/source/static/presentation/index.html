@@ -1,0 +1,84 @@
+<%namespace file='/olx_partials.xml' import='asset_url'/>\
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title></title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <!-- reveal.js CSS theme and local overrides -->
+    <link rel="stylesheet" href="/${asset_url('presentation_css_reveal.css')}"/>
+    <link rel="stylesheet" href="/${asset_url('presentation_css_white.css')}"/>
+    <link rel="stylesheet" href="/${asset_url('presentation_css_zenburn.css')}"/>
+    <link rel="stylesheet" href="/${asset_url('presentation_css_reveal-override.css')}"/>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+	<!-- Replace [] with an ordered list of markdown files
+	     you want to include in the presentation -->
+        % for i in ['introduction_unit_01.md', \
+	            'introduction_unit_02.md', \
+		    'introduction_unit_03.md']:
+        <section data-markdown="/${asset_url(i)}"
+                 data-separator="^\n\n\n"
+                 data-separator-vertical="^\n\n"
+                 data-separator-notes="^<!-- Note -->">
+        </section>
+        % endfor
+      </div>
+    </div>
+
+    <script src="/${asset_url('presentation_js_head.min.js')}"></script>
+    <script src="/${asset_url('presentation_js_reveal.js')}"></script>
+
+    <script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+    controls: false,
+    progress: false,
+    history: true,
+    center: true,
+
+    theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+    transition: Reveal.getQueryHash().transition || 'fade', // default/cube/page/concave/zoom/linear/fade/none
+
+    menu: {
+        themes: false,
+        transitions: false,
+        openButton: false,
+        openSlideNumber: true,
+        markers: true
+    },
+
+    keyboard: {
+         40: 'next',
+         38: 'prev'
+    },
+
+    // Optional libraries used to extend on reveal.js
+    dependencies: [
+        { src: '/${asset_url("presentation_js_classList.js")}', condition: function() { return !document.body.classList; } },
+        { src: '/${asset_url("presentation_js_marked.js")}', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: '/${asset_url("presentation_js_markdown.js")}', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: '/${asset_url("presentation_js_highlight.js")}', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+        { src: '/${asset_url("presentation_js_zoom.js")}', async: true, condition: function() { return !!document.body.classList; } },
+        { src: '/${asset_url("presentation_js_notes.js")}', async: true, condition: function() { return !!document.body.classList; } },
+    ]
+});
+
+      // If we wanted mouse clicks to advance to next / previous slides, this is
+      // how we'd do it:
+
+      // window.addEventListener("mousedown", handleClick, false);
+      // window.addEventListener("contextmenu", function(e) { e.preventDefault(); }, false);
+      function handleClick(e) {
+          e.preventDefault();
+          if(e.button === 0) Reveal.next();
+          // if(e.button === 2) Reveal.prev();
+      }
+    </script>
+  </body>
+</html>
