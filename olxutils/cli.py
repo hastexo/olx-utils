@@ -14,9 +14,10 @@ import warnings
 from argparse import ArgumentParser, ArgumentTypeError
 
 from datetime import datetime
-from subprocess import check_call, CalledProcessError
+from subprocess import check_call
 
 from olxutils.templates import OLXTemplates, OLXTemplateException
+from olxutils.git import GitHelper, GitHelperException
 
 # Under which name do we expect the CLI to be generally called?
 CANONICAL_COMMAND_NAME = 'olx'
@@ -79,26 +80,6 @@ class CLI(object):
             new_run_parser.error(message.format(self.opts.end_date,
                                                 self.opts.start_date))
 
-    def check_branch(self):
-        try:
-            check_call("git rev-parse --verify run/{}".format(self.opts.name),
-                       shell=True)
-        except CalledProcessError:
-            pass
-        else:
-            message = (
-                "The target git branch already exists.  "
-                "Please delete it and try again.\n"
-                "You can do so with: \n"
-                "\n"
-                "git branch -d run/{}\n"
-            )
-            raise CLIException(message.format(self.opts.name))
-
-    def create_branch(self):
-        check_call("git checkout -b run/{}".format(self.opts.name),
-                   shell=True)
-
     def render_templates(self):
         # Render templates
         templates = OLXTemplates({
@@ -118,45 +99,28 @@ class CLI(object):
         check_call("ln -sf _base policies/{}".format(self.opts.name),
                    shell=True)
 
-    def add_to_branch(self):
-        # Git add the changed files and commit them.
-        check_call("git add .",
-                   shell=True)
-        check_call("git commit -m 'New run: {}'".format(self.opts.name),
-                   shell=True)
-
-    def show_branch_message(self):
-        message = (
-            "\n"
-            "To push this new branch upstream, run:\n"
-            "\n"
-            "$ git push -u origin run/{}\n"
-            "\n"
-            "To switch back to master, run:\n"
-            "\n"
-            "$ git checkout master\n"
-        )
-        sys.stderr.write(message.format(self.opts.name))
-
     def new_run(self):
+        if self.opts.create_branch:
+            helper = GitHelper(run=self.opts.name)
+
         try:
             if self.opts.create_branch:
-                self.check_branch()
-                self.create_branch()
+                helper.create_branch()
 
             self.render_templates()
 
             self.create_symlinks()
 
             if self.opts.create_branch:
-                self.add_to_branch()
-                self.show_branch_message()
+                helper.add_to_branch()
+                sys.stderr.write(helper.message)
+
         except CLIException:
             raise
-        except CalledProcessError as c:
+        except GitHelperException as g:
             # Once we drop Python 2 support, this should really be
-            # "raise CLIException from c"
-            raise CLIException(str(c))
+            # "raise CLIException from g"
+            raise CLIException(str(g))
         except OLXTemplateException as t:
             # Again, this should be
             # "raise CLIException('Failed to render templates:') from t
