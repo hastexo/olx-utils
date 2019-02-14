@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import os
 
 from olxutils import helpers
@@ -14,12 +16,12 @@ class OLXHelpersTestCase(TestCase):
 class SuffixTest(OLXHelpersTestCase):
 
     def test_expected_suffix(self):
-        expected = (('foo', u' (foo)'),
-                    ('spam eggs', u' (spam eggs)'),
-                    (u'', u''),
-                    ('', u''),
-                    (None, u''),
-                    (False, u''))
+        expected = (('foo', ' (foo)'),
+                    ('spam eggs', ' (spam eggs)'),
+                    ('', ''),
+                    ('', ''),
+                    (None, ''),
+                    (False, ''))
         for t in expected:
             self.assertEqual(self.h.suffix(t[0]),
                              t[1])
@@ -28,9 +30,9 @@ class SuffixTest(OLXHelpersTestCase):
 class MarkdownTest(OLXHelpersTestCase):
 
     def test_basic_markdown(self):
-        expected = (('**foo**', u'<p><strong>foo</strong></p>\n'),
-                    ('*bar*', u'<p><em>bar</em></p>\n'),
-                    ('*baz*', u'<p><em>baz</em></p>\n'))
+        expected = (('**foo**', '<p><strong>foo</strong></p>\n'),
+                    ('*bar*', '<p><em>bar</em></p>\n'),
+                    ('*baz*', '<p><em>baz</em></p>\n'))
 
         for t in expected:
             # No extras
@@ -41,10 +43,10 @@ class MarkdownTest(OLXHelpersTestCase):
                              t[1])
 
     def test_strip_whitespace(self):
-        expected = (('\n*bar*', u'<p><em>bar</em></p>\n'),
-                    ('\nspam', u'<p>spam</p>\n'),
-                    ('\n*bar*   ', u'<p><em>bar</em></p>\n'),
-                    ('\nspam    ', u'<p>spam</p>\n'))
+        expected = (('\n*bar*', '<p><em>bar</em></p>\n'),
+                    ('\nspam', '<p>spam</p>\n'),
+                    ('\n*bar*   ', '<p><em>bar</em></p>\n'),
+                    ('\nspam    ', '<p>spam</p>\n'))
 
         for t in expected:
             # No extras

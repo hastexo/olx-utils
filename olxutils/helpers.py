@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """ Custom Mako helpers """
+from __future__ import unicode_literals
 
 import textwrap
 import markdown2
@@ -16,7 +17,7 @@ class OLXHelpers(object):
     """
     @staticmethod
     def suffix(s):
-        return u' ({})'.format(s) if s else u''
+        return ' ({})'.format(s) if s else ''
 
     @staticmethod
     def date(d):
@@ -25,7 +26,7 @@ class OLXHelpers(object):
     @staticmethod
     def markdown(content, extras=None):
         # Fix up whitespace.
-        if content[0] == u"\n":
+        if content[0] == "\n":
             content = content[1:]
         content = content.rstrip()
         content = textwrap.dedent(content)
@@ -60,7 +61,7 @@ class OLXHelpers(object):
         assert(swift_path)
         assert(swift_tempurl_key)
 
-        path = u"{}{}".format(swift_path, path)
+        path = "{}{}".format(swift_path, path)
         timestamp = int(date.strftime("%s"))
         temp_url = generate_temp_url(path,
                                      timestamp,
@@ -68,4 +69,4 @@ class OLXHelpers(object):
                                      'GET',
                                      absolute=True)
 
-        return u"{}{}".format(swift_endpoint, temp_url)
+        return "{}{}".format(swift_endpoint, temp_url)
