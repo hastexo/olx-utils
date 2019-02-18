@@ -2,4 +2,3 @@
 mock
 tox
 coverage
-discover
