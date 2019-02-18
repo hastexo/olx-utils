@@ -42,7 +42,8 @@ class OLXTemplates(object):
         "mako",
         "mako_templates",
         os.path.join("mako", "templates"),
-        os.path.join(os.path.dirname(__file__), "templates"),
+        os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                     "templates"),
     ]
 
     MODULES_DIRS = [
