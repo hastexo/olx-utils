@@ -92,7 +92,8 @@ class OLXTemplates(object):
         try:
             self._render_templates(templates)
         except:  # noqa: E722
-            raise OLXTemplateException(exceptions.text_error_template)
+            message = exceptions.text_error_template().render()
+            raise OLXTemplateException(message)
 
     def _find_templates(self, directory, filetype):
         matches = []

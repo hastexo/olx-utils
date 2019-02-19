@@ -6,6 +6,15 @@ from olxutils import helpers
 
 from unittest import TestCase
 
+from datetime import datetime
+
+from swiftclient.utils import generate_temp_url
+
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+
 
 class OLXHelpersTestCase(TestCase):
 
@@ -69,3 +78,30 @@ class MarkdownTest(OLXHelpersTestCase):
                 self.assertEqual(self.h.markdown_file(input_file,
                                                       extras=[e]),
                                  o.read())
+
+
+class SwiftTempURLTest(OLXHelpersTestCase):
+
+    def test_swift_tempurl(self):
+        endpoint = 'https://swift.example.com'
+        swift_path = '/v1/AUTH_bd1de33b3eae4287800cfe59f53b6fde'
+        path = '/container/object'
+        key = 'foobar'
+        expiry = datetime(2019, 1, 1)
+        timestamp = int(expiry.strftime('%s'))
+
+        expected_tempurl = ''.join([
+            endpoint,
+            generate_temp_url(swift_path + path,
+                              timestamp,
+                              key,
+                              'GET',
+                              absolute=True)
+        ])
+
+        with patch.dict(os.environ,
+                        {'SWIFT_ENDPOINT': endpoint,
+                         'SWIFT_PATH': swift_path,
+                         'SWIFT_TEMPURL_KEY': key}):
+            tempurl = self.h.swift_tempurl(path, expiry)
+            self.assertEqual(tempurl, expected_tempurl)

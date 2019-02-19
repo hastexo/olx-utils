@@ -17,6 +17,11 @@ except ImportError:
     # Python 3
     from io import StringIO
 
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+
 from subprocess import Popen, PIPE
 
 from unittest import TestCase
@@ -41,20 +46,18 @@ class OLXUtilsCLITestCase(TestCase):
     def execute_and_check_error(self,
                                 cmdline,
                                 expected_output):
-        try:
-            args = shlex.split(cmdline)
-            stderr = StringIO()
+        args = shlex.split(cmdline)
+        stderr = StringIO()
 
-            sys.argv = args
-            sys.stderr = stderr
+        with patch.multiple(sys,
+                            argv=args,
+                            stderr=stderr):
             with self.assertRaises(SystemExit) as se:
                 cli.main(sys.argv)
             self.assertNotEqual(se.exception.code, 0)
-            stderr.seek(0)
+            sys.stderr.seek(0)
             self.assertIn(expected_output,
-                          stderr.read())
-        finally:
-            sys.stderr = sys.__stderr__
+                          sys.stderr.read())
 
     def test_invalid_name(self):
         cmdline = self.create_command('_base 2019-01-01 2019-01-31')
@@ -84,19 +87,17 @@ class OLXUtilsCustomArgsTestCase(OLXUtilsCLITestCase):
     def execute_and_check_error(self,
                                 cmdline,
                                 expected_output):
-        try:
-            args = shlex.split(cmdline)
-            stderr = StringIO()
+        args = shlex.split(cmdline)
+        stderr = StringIO()
 
-            sys.stderr = stderr
+        with patch.multiple(sys,
+                            stderr=stderr):
             with self.assertRaises(SystemExit) as se:
                 cli.main(args)
             self.assertNotEqual(se.exception.code, 0)
             stderr.seek(0)
             self.assertIn(expected_output,
                           stderr.read())
-        finally:
-            sys.stderr = sys.__stderr__
 
 
 class NewRunPyCustomArgsTestCase(OLXUtilsCustomArgsTestCase):
@@ -117,6 +118,15 @@ class OLXNewRunCustomArgsTestCase(OLXUtilsCustomArgsTestCase):
     """
     CLI_PATH = 'olx-new-run'
     SUBCOMMAND = None
+
+
+class MainModuleSubcommandTestCase(OLXUtilsCustomArgsTestCase):
+    """
+    Test the __main__.py module, that is, invoking Python with the -m
+    package option (with a subcommand)
+    """
+    CLI_PATH = '__main__'
+    SUBCOMMAND = 'new-run'
 
 
 class OLXUtilsShellTestCase(OLXUtilsCLITestCase):
@@ -156,15 +166,6 @@ class OLXUtilsShellSubcommandTestCase(OLXUtilsShellTestCase):
     should be picked up in $PATH.
     """
     CLI_PATH = 'olx'
-    SUBCOMMAND = 'new-run'
-
-
-class MainModuleSubcommandTestCase(OLXUtilsShellTestCase):
-    """
-    Test the __main__.py module, that is, invoking Python with the -m
-    package option (with a subcommand)
-    """
-    CLI_PATH = '%s -m olxutils' % sys.executable
     SUBCOMMAND = 'new-run'
 
 
