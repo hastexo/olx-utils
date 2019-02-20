@@ -49,5 +49,6 @@ edX content store.
 
 ## License
 
-This package is licensed under the Affero GPL; see [`LICENSE`](LICENSE) for
+This package is licensed under the [GNU Affero
+GPL](https://www.tldrlegal.com/l/agpl3); see [`LICENSE`](LICENSE) for
 details.
