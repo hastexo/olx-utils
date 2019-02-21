@@ -22,6 +22,7 @@ setup(
     name='olx-utils',
     version='0.1.1',
     description='Utilities for edX OLX courses',
+    long_description=open('README.rst').read(),
     url='https://github.com/hastexo/olx-utils',
     author='hastexo',
     author_email='pypi@hastexo.com',
