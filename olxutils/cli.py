@@ -16,6 +16,7 @@ from argparse import ArgumentParser, ArgumentTypeError
 from datetime import datetime
 from subprocess import check_call
 
+from olxutils import __version__
 from olxutils.templates import OLXTemplates, OLXTemplateException
 from olxutils.git import GitHelper, GitHelperException
 
@@ -40,6 +41,11 @@ class CLI(object):
 
         parser = ArgumentParser(prog=CANONICAL_COMMAND_NAME,
                                 description="Open Learning XML (OLX) utility")
+
+        parser.add_argument('-V', '--version',
+                            action='version',
+                            help="show version",
+                            version='%(prog)s ' + __version__)
 
         subparsers = parser.add_subparsers(dest='subcommand')
         new_run_help = 'Prepare a local source tree for a new course run'

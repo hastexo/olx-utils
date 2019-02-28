@@ -20,7 +20,7 @@ def package_data(pkg, root_list):
 
 setup(
     name='olx-utils',
-    version='0.1.1',
+    use_scm_version=True,
     description='Utilities for edX OLX courses',
     long_description=open('README.rst').read(),
     url='https://github.com/hastexo/olx-utils',
@@ -50,4 +50,5 @@ setup(
         ],
     },
     package_data=package_data("olxutils", ["templates"]),
+    setup_requires=['setuptools-scm'],
 )
