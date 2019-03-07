@@ -49,5 +49,10 @@ coverage:
   script:
     - pip install coverage
     - python -m coverage combine
+    - python -m coverage html
     - python -m coverage report
   coverage: '/TOTAL.*\s+(\d+%)$/'
+  artifacts:
+    paths:
+      - htmlcov
+    expire_in: 1 week
