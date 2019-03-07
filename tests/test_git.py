@@ -88,7 +88,7 @@ class GitHelperTestCase(TestCase):
             with self.assertRaises(GitHelperException) as e:
                 self.helper.create_branch()
             expected_msg = 'Error creating branch run/%s' % self.RUN_NAME
-            self.assertEquals(str(e.exception), expected_msg)
+            self.assertEqual(str(e.exception), expected_msg)
 
     def test_create_branch_again(self):
         """
@@ -140,7 +140,7 @@ class GitHelperTestCase(TestCase):
             with self.assertRaises(GitHelperException) as e:
                 self.helper.add_to_branch()
             expected_msg = 'Error committing new run.'
-            self.assertEquals(str(e.exception), expected_msg)
+            self.assertEqual(str(e.exception), expected_msg)
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
