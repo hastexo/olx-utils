@@ -54,8 +54,9 @@ License
 -------
 
 This package is licensed under the `GNU Affero
-GPL <https://www.tldrlegal.com/l/agpl3>`__; see
-`LICENSE <LICENSE>`__ for details.
+GPL <https://tldrlegal.com/l/agpl3>`__; see
+`LICENSE <https://www.gnu.org/licenses/agpl-3.0.txt>`__
+for details.
 
 .. |PyPI version| image:: https://img.shields.io/pypi/v/olx-utils.svg
    :target: https://pypi.python.org/pypi/olx-utils
