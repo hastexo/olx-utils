@@ -77,18 +77,6 @@ class CLI(object):
 
         opts = self.parser.parse_args(args)
 
-        if opts.subcommand == 'new-run':
-            if opts.name == "_base":
-                message = ("This run name is reserved. "
-                           "Please choose another one.")
-                new_run_parser.error(message)
-            if opts.end_date < opts.start_date:
-                message = ("End date [{:%Y-%m-%d}] "
-                           "must be greater than or equal "
-                           "to start date [{:%Y-%m-%d}].")
-                new_run_parser.error(message.format(opts.end_date,
-                                                    opts.start_date))
-
         # Return the passed-in options as a dictionary
         return vars(opts)
 
@@ -123,6 +111,18 @@ class CLI(object):
                 suffix=None,
                 create_branch=False,
                 public=False):
+
+        if name == "_base":
+            message = ("This run name is reserved. "
+                       "Please choose another one.")
+            raise CLIException(message)
+        if end_date < start_date:
+            message = ("End date [{:%Y-%m-%d}] "
+                       "must be greater than or equal "
+                       "to start date [{:%Y-%m-%d}].")
+            raise CLIException(message.format(end_date,
+                                              start_date))
+
         if create_branch:
             helper = GitHelper(run=name)
 
