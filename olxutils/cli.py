@@ -14,7 +14,6 @@ import warnings
 from argparse import ArgumentParser, ArgumentTypeError
 
 from datetime import datetime
-from subprocess import check_call
 
 from olxutils import __version__
 from olxutils.templates import OLXTemplates, OLXTemplateException
@@ -102,8 +101,8 @@ class CLI(object):
 
     def create_symlinks(self):
         # Create symlink for policies
-        check_call("ln -sf _base policies/{}".format(self.opts.name),
-                   shell=True)
+        os.symlink('_base',
+                   'policies/{}'.format(name))
 
     def new_run(self):
         if self.opts.create_branch:
