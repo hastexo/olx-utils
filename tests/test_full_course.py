@@ -12,6 +12,9 @@ from olxutils.cli import CLI, CLIException
 
 import git
 
+from invoke import MockContext
+import tasks
+
 try:
     from unittest.mock import patch
 except ImportError:
@@ -55,17 +58,37 @@ class FullCourseTestCase(TestCase):
                    cwd=self.tmpdir,
                    shell=True)
 
-    def render_course(self, cmdline):
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir)
+
+
+class CLIFullCourseTestCase(FullCourseTestCase):
+
+    def render_course(self,
+                      name,
+                      start_date_string,
+                      end_date_string,
+                      create_branch=False):
         os.chdir(self.sourcedir)
+        cmdline = ("olx new-run "
+                   "%s %s %s %s") % ('-b' if create_branch else '',
+                                     name,
+                                     start_date_string,
+                                     end_date_string)
+
         args = shlex.split(cmdline)
         CLI().main(args)
 
     def test_render_course_matching(self):
-        self.render_course("olx-new-run foo 2019-01-01 2019-12-31")
+        self.render_course("foo",
+                           "2019-01-01",
+                           "2019-12-31")
         self.diff()
 
     def test_render_course_nonmatching(self):
-        self.render_course("olx-new-run bar 2019-01-01 2019-12-31")
+        self.render_course("bar",
+                           "2019-01-01",
+                           "2019-12-31")
         with self.assertRaises(CalledProcessError):
             self.diff()
 
@@ -75,23 +98,25 @@ class FullCourseTestCase(TestCase):
                                'include',
                                'course.xml'))
         with self.assertRaises(CLIException):
-            self.render_course("olx-new-run foo 2019-01-01 2019-12-31")
+            self.render_course("foo",
+                               "2019-01-01",
+                               "2019-12-31")
 
     def test_render_course_force_git_error(self):
         # Simulate an empty PATH, so a git command fails
         with patch.dict(os.environ,
                         {'PATH': ''}):
             with self.assertRaises(CLIException):
-                self.render_course("olx new-run -b foo 2019-01-01 2019-12-31")
+                self.render_course("foo",
+                                   "2019-01-01",
+                                   "2019-12-31",
+                                   True)
 
-    def tearDown(self):
-        shutil.rmtree(self.tmpdir)
 
-
-class GitFullCourseTestCase(FullCourseTestCase):
+class CLIGitFullCourseTestCase(CLIFullCourseTestCase):
 
     def setUp(self):
-        super(GitFullCourseTestCase, self).setUp()
+        super(CLIGitFullCourseTestCase, self).setUp()
 
         os.chdir(self.sourcedir)
         repo = git.Repo.init()
@@ -110,9 +135,35 @@ class GitFullCourseTestCase(FullCourseTestCase):
                    shell=True)
 
     def test_render_course_matching_git(self):
-        self.render_course("olx-new-run -b foo 2019-01-01 2019-12-31")
+        self.render_course("foo",
+                           "2019-01-01",
+                           "2019-12-31",
+                           True)
         self.diff()
         self.assertIn('run/foo', self.repo.branches)
 
-    def tearDown(self):
-        shutil.rmtree(self.tmpdir)
+
+class InvokeFullCourseTestCase(FullCourseTestCase):
+
+    def test_render_course_matching(self):
+        os.chdir(self.sourcedir)
+        ctx = MockContext()
+        tasks.new_run(ctx)
+        self.diff()
+
+    def test_render_course_nonmatching(self):
+        os.chdir(self.sourcedir)
+        ctx = MockContext()
+        tasks.new_run(ctx, "bar")
+        with self.assertRaises(CalledProcessError):
+            self.diff()
+
+    def test_render_course_error(self):
+        """Force an exception in rendering by removing a required file."""
+        os.remove(os.path.join(self.sourcedir,
+                               'include',
+                               'course.xml'))
+        os.chdir(self.sourcedir)
+        ctx = MockContext()
+        with self.assertRaises(CLIException):
+            tasks.new_run(ctx)

@@ -29,8 +29,7 @@ class CLIException(Exception):
 
 class CLI(object):
 
-    def parse_args(self, args=sys.argv[1:]):
-
+    def __init__(self):
         def valid_date(s):
             try:
                 return datetime.strptime(s, "%Y-%m-%d")
@@ -41,12 +40,12 @@ class CLI(object):
         parser = ArgumentParser(prog=CANONICAL_COMMAND_NAME,
                                 description="Open Learning XML (OLX) utility")
 
+        subparsers = parser.add_subparsers(dest='subcommand')
         parser.add_argument('-V', '--version',
                             action='version',
                             help="show version",
                             version='%(prog)s ' + __version__)
 
-        subparsers = parser.add_subparsers(dest='subcommand')
         new_run_help = 'Prepare a local source tree for a new course run'
         new_run_parser = subparsers.add_parser('new-run',
                                                help=new_run_help)
@@ -72,51 +71,74 @@ class CLI(object):
                                     help="When the course run ends "
                                          "(YYYY-MM-DD)")
 
-        self.opts = parser.parse_args(args)
+        self.parser = parser
 
-        if self.opts.name == "_base":
-            message = "This run name is reserved.  Please choose another one."
-            new_run_parser.error(message)
+    def parse_args(self, args=sys.argv[1:]):
 
-        if self.opts.end_date < self.opts.start_date:
-            message = ("End date [{:%Y-%m-%d}] "
-                       "must be greater than or equal "
-                       "to start date [{:%Y-%m-%d}].")
-            new_run_parser.error(message.format(self.opts.end_date,
-                                                self.opts.start_date))
+        opts = self.parser.parse_args(args)
 
-    def render_templates(self):
+        if opts.subcommand == 'new-run':
+            if opts.name == "_base":
+                message = ("This run name is reserved. "
+                           "Please choose another one.")
+                new_run_parser.error(message)
+            if opts.end_date < opts.start_date:
+                message = ("End date [{:%Y-%m-%d}] "
+                           "must be greater than or equal "
+                           "to start date [{:%Y-%m-%d}].")
+                new_run_parser.error(message.format(opts.end_date,
+                                                    opts.start_date))
+
+        # Return the passed-in options as a dictionary
+        return vars(opts)
+
+    def render_templates(self,
+                         name,
+                         start_date,
+                         end_date,
+                         suffix=None,
+                         public=False):
         # Render templates
         templates = OLXTemplates({
-            "run_name": self.opts.name,
-            "start_date": self.opts.start_date,
-            "end_date": self.opts.end_date.replace(hour=23,
-                                                   minute=59,
-                                                   second=59),
-            "run_suffix": self.opts.suffix,
-            "is_public": self.opts.public,
+            "run_name": name,
+            "start_date": start_date,
+            "end_date": end_date.replace(hour=23,
+                                         minute=59,
+                                         second=59),
+            "run_suffix": suffix,
+            "is_public": public,
         })
 
         templates.render()
 
-    def create_symlinks(self):
+    def create_symlinks(self, name):
         # Create symlink for policies
         os.symlink('_base',
                    'policies/{}'.format(name))
 
-    def new_run(self):
-        if self.opts.create_branch:
-            helper = GitHelper(run=self.opts.name)
+    def new_run(self,
+                name,
+                start_date,
+                end_date,
+                suffix=None,
+                create_branch=False,
+                public=False):
+        if create_branch:
+            helper = GitHelper(run=name)
 
         try:
-            if self.opts.create_branch:
+            if create_branch:
                 helper.create_branch()
 
-            self.render_templates()
+            self.render_templates(name,
+                                  start_date,
+                                  end_date,
+                                  suffix,
+                                  public)
 
-            self.create_symlinks()
+            self.create_symlinks(name)
 
-            if self.opts.create_branch:
+            if create_branch:
                 helper.add_to_branch()
                 sys.stderr.write(helper.message)
 
@@ -164,13 +186,11 @@ class CLI(object):
             argv.insert(1,
                         os.path.basename(command).replace(prefix, ''))
 
-        self.parse_args(argv[1:])
+        opts = self.parse_args(argv[1:])
 
-        # We could use getattr() here, but even with all our
-        # safeguards in place subcommand is still user input. So just
-        # enumerate and repeat the method names here.
-        if self.opts.subcommand == 'new-run':
-            self.new_run()
+        # Invoke the subcommand, passing the parsed command line
+        # options in as kwargs
+        getattr(self, opts.pop('subcommand').replace('-', '_'))(**opts)
 
 
 def main(argv=sys.argv):
