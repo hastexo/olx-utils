@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import logging
+
 import requests
 
 
@@ -31,7 +33,10 @@ class TokenHelper(object):
                           data=request_data)
         # Raise an HTTPError if we didn't get an OK response
         r.raise_for_status()
+        logging.debug("Request took %s to complete" % r.elapsed)
 
         json_result = r.json()
+        logging.debug("Request returned JSON result %s" % json_result)
+
         self.token = json_result['access_token']
         return self.token

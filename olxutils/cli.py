@@ -11,6 +11,8 @@ import os
 
 import warnings
 
+import logging
+
 from argparse import ArgumentParser, ArgumentTypeError
 
 from datetime import datetime
@@ -48,6 +50,19 @@ class CLI(object):
                             action='version',
                             help="show version",
                             version='%(prog)s ' + __version__)
+        parser.add_argument('-v', '--verbose',
+                            action='count',
+                            dest='verbosity',
+                            default=0,
+                            help=("verbose output "
+                                  "(repeat for increased verbosity)"))
+        parser.add_argument('-q', '--quiet',
+                            action='store_const',
+                            const=-1,
+                            default=0,
+                            dest='verbosity',
+                            help=("quiet output "
+                                  "(show errors only)"))
 
         nr_help = 'Prepare a local source tree for a new course run'
         nr_parser = subparsers.add_parser('new-run',
@@ -240,7 +255,7 @@ class CLI(object):
 
             if create_branch:
                 helper.add_to_branch()
-                sys.stderr.write(helper.message)
+                logging.warn(helper.message)
 
         except CLIException:
             raise
@@ -253,7 +268,22 @@ class CLI(object):
             # "raise CLIException('Failed to render templates:') from t
             raise CLIException('Failed to render templates:\n' + str(t))
 
-        sys.stderr.write("All done!\n")
+        logging.info("All done!")
+
+    def setup_logging(self, verbosity):
+        # Python log levels go from 10 (DEBUG) to 50 (CRITICAL),
+        # our verbosity argument goes from -1 (-q) to 2 (-vv).
+        # We never want to suppress error and critical messages,
+        # and default to the OLX_LOG_LEVEL environment variable,
+        # and if *that's* unset, use 30 (WARNING). Hence:
+        env_loglevel = os.getenv('OLX_LOG_LEVEL', 'WARNING').upper()
+        base_loglevel = getattr(logging, env_loglevel)
+
+        verbosity = min(verbosity, 2)
+        loglevel = base_loglevel - (verbosity * 10)
+
+        logging.basicConfig(level=loglevel,
+                            format='%(message)s')
 
     def archive(self, root_directory='.'):
         base_name = "archive"
@@ -330,10 +360,17 @@ class CLI(object):
 
         opts = self.parse_args(argv[1:])
 
+        self.setup_logging(opts.pop('verbosity') or 0)
+
         # Invoke the subcommand, passing the parsed command line
         # options in as kwargs
         ret = getattr(self,
                       opts.pop('subcommand').replace('-', '_'))(**opts)
+
+        # Subcommands may issue a return code or text output, which
+        # might be meant to be parsed or piped to other programs. This
+        # output is not emitted via a logging call (where it goes to
+        # stderr), but via the print function and thus to stdout.
         if ret:
             print(ret)
 
@@ -341,9 +378,13 @@ class CLI(object):
 def main(argv=sys.argv):
     try:
         CLI().main(argv)
-    except CLIException as c:
-        sys.stderr.write('%s\n' % str(c))
-        sys.exit(1)
+    except Exception as e:
+        sys.stderr.write('%s\n' % str(e))
+        logging.debug('', exc_info=True)
+        try:
+            sys.exit(e.errno)
+        except AttributeError:
+            sys.exit(1)
 
 
 if __name__ == "__main__":
