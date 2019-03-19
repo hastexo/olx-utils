@@ -21,3 +21,9 @@ def new_run(context,
                   to_date(start_date),
                   to_date(end_date),
                   create_branch)
+
+
+@task
+def archive(context):
+
+    CLI().archive()

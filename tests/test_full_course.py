@@ -5,6 +5,7 @@ import tempfile
 
 import shutil
 import shlex
+import tarfile
 
 from subprocess import check_call, CalledProcessError
 
@@ -35,6 +36,67 @@ class FullCourseTestCase(TestCase):
                               'course',
                               'result')
 
+    ARCHIVE_MEMBERS = [
+        'course',
+        'course/about',
+        'course/about/overview.html',
+        'course/chapter',
+        'course/chapter/conclusion.xml',
+        'course/chapter/introduction.xml',
+        'course/course.xml',
+        'course/html',
+        'course/html/README.md',
+        'course/html/introduction_unit_01.html',
+        'course/html/introduction_unit_02.html',
+        'course/html/introduction_unit_03.html',
+        'course/info',
+        'course/info/handouts.html',
+        'course/info/updates.html',
+        'course/markdown',
+        'course/markdown/README.md',
+        'course/markdown/introduction_unit_01.md',
+        'course/markdown/introduction_unit_02.md',
+        'course/markdown/introduction_unit_03.md',
+        'course/policies',
+        'course/policies/_base',
+        'course/policies/_base/grading_policy.json',
+        'course/policies/_base/policy.json',
+        'course/policies/assets.json',
+        'course/policies/foo',
+        'course/sequential',
+        'course/sequential/README.md',
+        'course/sequential/introduction.xml',
+        'course/static',
+        'course/static/hot',
+        'course/static/hot/README.md',
+        'course/static/images',
+        'course/static/images/README.md',
+        'course/static/markdown',
+        'course/static/markdown/README.md',
+        'course/static/markdown/introduction_unit_01.md',
+        'course/static/markdown/introduction_unit_02.md',
+        'course/static/markdown/introduction_unit_03.md',
+        'course/static/presentation',
+        'course/static/presentation/css',
+        'course/static/presentation/css/reveal-override.css',
+        'course/static/presentation/css/reveal-override.css.map',
+        'course/static/presentation/css/reveal-override.scss',
+        'course/static/presentation/css/reveal.css',
+        'course/static/presentation/css/white.css',
+        'course/static/presentation/css/zenburn.css',
+        'course/static/presentation/index.html',
+        'course/static/presentation/js',
+        'course/static/presentation/js/classList.js',
+        'course/static/presentation/js/head.min.js',
+        'course/static/presentation/js/highlight.js',
+        'course/static/presentation/js/markdown.js',
+        'course/static/presentation/js/marked.js',
+        'course/static/presentation/js/notes.html',
+        'course/static/presentation/js/notes.js',
+        'course/static/presentation/js/reveal.js',
+        'course/static/presentation/js/zoom.js',
+    ]
+
     def setUp(self):
         """
         Copy the source and result files to temporary directories
@@ -58,6 +120,13 @@ class FullCourseTestCase(TestCase):
                    cwd=self.tmpdir,
                    shell=True)
 
+    def verify_archive(self):
+        filename = os.path.join(self.sourcedir,
+                                'archive.tar.gz')
+        with tarfile.open(filename) as tf:
+            self.assertEqual(set(tf.getnames()),
+                             set(self.ARCHIVE_MEMBERS))
+
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
 
@@ -79,11 +148,19 @@ class CLIFullCourseTestCase(FullCourseTestCase):
         args = shlex.split(cmdline)
         CLI().main(args)
 
+    def create_archive(self):
+        os.chdir(self.sourcedir)
+        cmdline = "olx archive"
+        args = shlex.split(cmdline)
+        CLI().main(args)
+
     def test_render_course_matching(self):
         self.render_course("foo",
                            "2019-01-01",
                            "2019-12-31")
         self.diff()
+        self.create_archive()
+        self.verify_archive()
 
     def test_render_course_nonmatching(self):
         self.render_course("bar",
@@ -150,6 +227,8 @@ class InvokeFullCourseTestCase(FullCourseTestCase):
         ctx = MockContext()
         tasks.new_run(ctx)
         self.diff()
+        tasks.archive(ctx)
+        self.verify_archive()
 
     def test_render_course_nonmatching(self):
         os.chdir(self.sourcedir)

@@ -18,6 +18,7 @@ from datetime import datetime
 from olxutils import __version__
 from olxutils.templates import OLXTemplates, OLXTemplateException
 from olxutils.git import GitHelper, GitHelperException
+from olxutils.archive import ArchiveHelper
 
 # Under which name do we expect the CLI to be generally called?
 CANONICAL_COMMAND_NAME = 'olx'
@@ -46,30 +47,37 @@ class CLI(object):
                             help="show version",
                             version='%(prog)s ' + __version__)
 
-        new_run_help = 'Prepare a local source tree for a new course run'
-        new_run_parser = subparsers.add_parser('new-run',
-                                               help=new_run_help)
+        nr_help = 'Prepare a local source tree for a new course run'
+        nr_parser = subparsers.add_parser('new-run',
+                                          help=nr_help)
 
-        new_run_parser.add_argument('-b', "--create-branch",
-                                    action="store_true",
-                                    help=("Create a new 'run/NAME' "
-                                          "git branch, add changed files, "
-                                          "and commit them."))
-        new_run_parser.add_argument('-p', "--public",
-                                    action="store_true",
-                                    help="Make the course run public")
-        new_run_parser.add_argument('-s', "--suffix",
-                                    help="The run name suffix")
-        new_run_parser.add_argument("name",
-                                    help="The run identifier")
-        new_run_parser.add_argument("start_date",
-                                    type=valid_date,
-                                    help="When the course run starts "
-                                         "(YYYY-MM-DD)")
-        new_run_parser.add_argument("end_date",
-                                    type=valid_date,
-                                    help="When the course run ends "
-                                         "(YYYY-MM-DD)")
+        nr_parser.add_argument('-b', "--create-branch",
+                               action="store_true",
+                               help=("Create a new 'run/NAME' "
+                                     "git branch, add changed files, "
+                                     "and commit them."))
+        nr_parser.add_argument('-p', "--public",
+                               action="store_true",
+                               help="Make the course run public")
+        nr_parser.add_argument('-s', "--suffix",
+                               help="The run name suffix")
+        nr_parser.add_argument("name",
+                               help="The run identifier")
+        nr_parser.add_argument("start_date",
+                               type=valid_date,
+                               help="When the course run starts "
+                               "(YYYY-MM-DD)")
+        nr_parser.add_argument("end_date",
+                               type=valid_date,
+                               help="When the course run ends "
+                               "(YYYY-MM-DD)")
+
+        a_help = 'Create an archive for import into Open edX Studio'
+        a_parser = subparsers.add_parser('archive',
+                                         help=a_help)
+        a_parser.add_argument('-r', '--root-directory',
+                              default='.',
+                              help="Root directory of course files")
 
         self.parser = parser
 
@@ -154,6 +162,13 @@ class CLI(object):
             raise CLIException('Failed to render templates:\n' + str(t))
 
         sys.stderr.write("All done!\n")
+
+    def archive(self, root_directory='.'):
+        base_name = "archive"
+        helper = ArchiveHelper(root_directory,
+                               base_name)
+
+        helper.make_archive()
 
     def main(self, argv=sys.argv):
         """Main CLI entry point.
