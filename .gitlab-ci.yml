@@ -51,7 +51,7 @@ coverage:
     - python -m coverage combine
     - python -m coverage html
     - python -m coverage report
-  coverage: '/TOTAL.*\s+(\d+%)$/'
+  coverage: '/TOTAL.*\s+(\d+\.\d+%)$/'
   artifacts:
     paths:
       - htmlcov
