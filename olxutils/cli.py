@@ -131,11 +131,14 @@ class CLI(object):
             raise CLIException(message.format(end_date,
                                               start_date))
 
-        if create_branch:
-            helper = GitHelper(run=name)
-
         try:
             if create_branch:
+                helper = GitHelper(run=name)
+
+                if helper.is_checkout_dirty():
+                    raise CLIException(('The local checkout is dirty, '
+                                        'please add uncommitted changes.'))
+
                 helper.create_branch()
 
             self.render_templates(name,
