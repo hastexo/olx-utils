@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from subprocess import check_call, CalledProcessError
+from subprocess import check_output, CalledProcessError
 
 
 class GitHelperException(Exception):
@@ -17,7 +17,7 @@ class GitHelper(object):
         self.message = ""
 
     def _git_command(self, args):
-        check_call("git %s" % args, shell=True)
+        return check_output("git %s" % args, shell=True)
 
     def create_branch(self):
         if self.branch_exists():
@@ -43,6 +43,18 @@ class GitHelper(object):
             return False
 
         return True
+
+    def is_checkout_dirty(self):
+        try:
+            # "git status --porcelain" returns output if the checkout
+            # is dirty, i.e. has uncommitted or un-added changes. If
+            # the checkout is clean, it returns the empty string.
+            output = self._git_command('status --porcelain')
+            if output:
+                return True
+        except CalledProcessError:
+            raise GitHelperException('Error running git status.')
+        return False
 
     def add_to_branch(self):
         # Git add the changed files and commit them.

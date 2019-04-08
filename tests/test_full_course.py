@@ -219,6 +219,18 @@ class CLIGitFullCourseTestCase(CLIFullCourseTestCase):
         self.diff()
         self.assertIn('run/foo', self.repo.branches)
 
+    def test_render_course_matching_git_dirty(self):
+        dirtypath = os.path.join(self.sourcedir,
+                                 'dirty.txt')
+        # Pythonic "touch"
+        open(dirtypath, 'a').close()
+
+        with self.assertRaises(CLIException):
+            self.render_course("foo",
+                               "2019-01-01",
+                               "2019-12-31",
+                               True)
+
 
 class InvokeFullCourseTestCase(FullCourseTestCase):
 
