@@ -4,3 +4,4 @@ tox
 coverage
 gitpython
 invoke
+requests-mock

@@ -45,6 +45,8 @@ setup(
         'markdown2>=2.3.0',
         'Pygments>=2.0.1',
         'python-swiftclient>=2.2.0',
+        'requests',
+        'xmltodict',
     ],
     entry_points={
         'console_scripts': [

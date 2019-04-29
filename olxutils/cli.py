@@ -3,7 +3,7 @@
 """
 New course run
 """
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals
 
 import sys
 
@@ -19,6 +19,8 @@ from olxutils import __version__
 from olxutils.templates import OLXTemplates, OLXTemplateException
 from olxutils.git import GitHelper, GitHelperException
 from olxutils.archive import ArchiveHelper
+from olxutils.token import TokenHelper
+from olxutils.upload import UploadHelper
 
 # Under which name do we expect the CLI to be generally called?
 CANONICAL_COMMAND_NAME = 'olx'
@@ -78,6 +80,93 @@ class CLI(object):
         a_parser.add_argument('-r', '--root-directory',
                               default='.',
                               help="Root directory of course files")
+
+        t_help = 'Retrieve an Open edX CMS REST API token'
+        t_epilog = ('You can also set the OLX_LMS_URL, '
+                    'OLX_LMS_CLIENT_ID, '
+                    'and OLX_LMS_CLIENT_SECRET environment variables '
+                    'instead of the --url, '
+                    '--client-id, and '
+                    '--client-secret options.')
+        t_parser = subparsers.add_parser('token',
+                                         help=t_help,
+                                         epilog=t_epilog)
+        # Using os.getenv(var) here rather than os.environ, because
+        # os.getenv() returns None if the envar is unset, as opposed
+        # to os.environ[var] which would return KeyError.
+        t_parser.add_argument('--url',
+                              default=os.getenv('OLX_LMS_URL'),
+                              help='Open edX CMS URL')
+        t_parser.add_argument('--client-id',
+                              default=os.getenv('OLX_LMS_CLIENT_ID'),
+                              metavar='ID',
+                              help=('Open edX CMS Django OAuth '
+                                    'Toolkit client ID'))
+        t_parser.add_argument('--client-secret',
+                              default=os.getenv('OLX_LMS_CLIENT_SECRET'),
+                              metavar='SECRET',
+                              help=('Open edX CMS Django OAuth '
+                                    'Toolkit client secret'))
+
+        u_help = 'Upload a course archive into the Open edX content store'
+        u_epilog = ('You can also set the OLX_CMS_URL '
+                    'and OLX_CMS_TOKEN environment variables '
+                    'instead of the --url and '
+                    '--token options.')
+        u_parser = subparsers.add_parser('upload',
+                                         help=u_help,
+                                         epilog=u_epilog)
+        u_parser.add_argument('--url',
+                              default=os.getenv('OLX_CMS_URL'),
+                              help='Open edX CMS URL')
+        u_parser.add_argument('--token',
+                              default=os.getenv('OLX_CMS_TOKEN'),
+                              help='Open edX REST API token')
+        u_parser.add_argument('-f',
+                              '--file',
+                              required=True,
+                              help=('File to be uploaded. '
+                                    'This must be a valid Open edX '
+                                    'course archive.'))
+        u_parser.add_argument('-c',
+                              '--course-id',
+                              help=('Full Open edX course ID, in '
+                                    '"course-v1:org+course+run" form. '
+                                    'If unspecified, the course ID is '
+                                    'detected from the course.xml file '
+                                    'found the course archive.'))
+
+        s_help = 'Check the status of a course upload task'
+        s_epilog = ('You can also set the OLX_CMS_URL '
+                    'and OLX_CMS_TOKEN environment variables '
+                    'instead of the --url and '
+                    '--token options.')
+        s_parser = subparsers.add_parser('status',
+                                         help=s_help,
+                                         epilog=s_epilog)
+        s_parser.add_argument('--url',
+                              default=os.getenv('OLX_CMS_URL'),
+                              help='Open edX CMS URL')
+        s_parser.add_argument('--token',
+                              default=os.getenv('OLX_CMS_TOKEN'),
+                              help='Open edX REST API token')
+        s_parser.add_argument('-f',
+                              '--file',
+                              required=True,
+                              help=('File to be uploaded. '
+                                    'This must be a valid Open edX '
+                                    'course archive.'))
+        s_parser.add_argument('-c',
+                              '--course-id',
+                              help=('Full Open edX course ID, in '
+                                    '"course-v1:org+course+run" form. '
+                                    'If unspecified, the course ID is '
+                                    'detected from the course.xml file '
+                                    'found the course archive.'))
+        s_parser.add_argument('-t',
+                              '--task-id',
+                              help=('Task ID, as returned from '
+                                    '%s upload' % CANONICAL_COMMAND_NAME))
 
         self.parser = parser
 
@@ -173,6 +262,41 @@ class CLI(object):
 
         helper.make_archive()
 
+    def token(self,
+              url,
+              client_id,
+              client_secret):
+
+        helper = TokenHelper(url,
+                             client_id,
+                             client_secret)
+        return helper.fetch_token()
+
+    def upload(self,
+               url,
+               file,
+               token,
+               course_id):
+
+        helper = UploadHelper(url,
+                              archive=file,
+                              token=token,
+                              course_id=course_id)
+        return helper.upload()
+
+    def status(self,
+               url,
+               file,
+               token,
+               course_id,
+               task_id):
+
+        helper = UploadHelper(url,
+                              archive=file,
+                              token=token,
+                              course_id=course_id)
+        return helper.fetch_upload_task_state(task_id)
+
     def main(self, argv=sys.argv):
         """Main CLI entry point.
 
@@ -208,7 +332,10 @@ class CLI(object):
 
         # Invoke the subcommand, passing the parsed command line
         # options in as kwargs
-        getattr(self, opts.pop('subcommand').replace('-', '_'))(**opts)
+        ret = getattr(self,
+                      opts.pop('subcommand').replace('-', '_'))(**opts)
+        if ret:
+            print(ret)
 
 
 def main(argv=sys.argv):
