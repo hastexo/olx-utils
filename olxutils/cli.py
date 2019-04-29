@@ -215,7 +215,7 @@ def main(argv=sys.argv):
     try:
         CLI().main(argv)
     except CLIException as c:
-        sys.stderr.write(str(c))
+        sys.stderr.write('%s\n' % str(c))
         sys.exit(1)
 
 
