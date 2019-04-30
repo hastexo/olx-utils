@@ -150,6 +150,16 @@ class CLI(object):
                                     'If unspecified, the course ID is '
                                     'detected from the course.xml file '
                                     'found the course archive.'))
+        u_parser.add_argument('--wait',
+                              default=False,
+                              action='store_true',
+                              help=('Wait for the course import '
+                                    'to fully complete. If unset, '
+                                    'the command returns as soon '
+                                    'as the CMS has accepted the upload, '
+                                    'and returns a task ID that '
+                                    'can subsequently be checked with '
+                                    '"%s status".' % CANONICAL_COMMAND_NAME))
 
         s_help = 'Check the status of a course upload task'
         s_epilog = ('You can also set the OLX_CMS_URL '
@@ -180,6 +190,7 @@ class CLI(object):
                                     'found the course archive.'))
         s_parser.add_argument('-t',
                               '--task-id',
+                              required=True,
                               help=('Task ID, as returned from '
                                     '%s upload' % CANONICAL_COMMAND_NAME))
 
@@ -306,13 +317,14 @@ class CLI(object):
                url,
                file,
                token,
-               course_id):
+               course_id,
+               wait):
 
         helper = UploadHelper(url,
                               archive=file,
                               token=token,
                               course_id=course_id)
-        return helper.upload()
+        return helper.upload(wait)
 
     def status(self,
                url,

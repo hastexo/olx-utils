@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
 
+import logging
 import re
 import tarfile
+import time
 
 import requests
 import xmltodict
@@ -70,7 +72,7 @@ class UploadHelper(object):
 
         return course_id
 
-    def upload(self):
+    def upload(self, wait=False):
         request_headers = {
             'Authorization': 'JWT %s' % self.token,
         }
@@ -82,12 +84,32 @@ class UploadHelper(object):
                           files=request_files,
                           headers=request_headers)
 
+        logging.debug("Request took %s to complete" % r.elapsed)
         # Raise an HTTPError if we didn't get an OK response
         r.raise_for_status()
 
         json_result = r.json()
+        logging.debug("Request returned JSON result %s" % json_result)
+
         self.task_id = json_result['task_id']
-        return self.task_id
+
+        if wait:
+            while True:
+                task_state = self.fetch_upload_task_state()
+                if task_state == 'Succeeded':
+                    logging.info('Course upload to %s '
+                                 'from %s succeeded.' % (self.course_id,
+                                                         self.archive))
+                    break
+                elif task_state == 'Failed':
+                    msg = ('Course upload to %s '
+                           'from %s failed') % (self.course_id,
+                                                self.archive)
+                    raise UploadHelperException(msg)
+                else:
+                    time.sleep(1)
+        else:
+            return self.task_id
 
     def fetch_upload_task_state(self, task_id=None):
         request_headers = {
@@ -100,8 +122,11 @@ class UploadHelper(object):
         r = requests.get(self.upload_url,
                          params=request_params,
                          headers=request_headers)
+        logging.debug("Request took %s to complete" % r.elapsed)
         # Raise an HTTPError if we didn't get an OK response
         r.raise_for_status()
 
         json_result = r.json()
+        logging.debug("Request returned JSON result %s" % json_result)
+
         return json_result['state']
