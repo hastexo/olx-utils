@@ -3,13 +3,15 @@
 """
 New course run
 """
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals
 
 import sys
 
 import os
 
 import warnings
+
+import logging
 
 from argparse import ArgumentParser, ArgumentTypeError
 
@@ -19,6 +21,8 @@ from olxutils import __version__
 from olxutils.templates import OLXTemplates, OLXTemplateException
 from olxutils.git import GitHelper, GitHelperException
 from olxutils.archive import ArchiveHelper
+from olxutils.token import TokenHelper
+from olxutils.upload import UploadHelper
 
 # Under which name do we expect the CLI to be generally called?
 CANONICAL_COMMAND_NAME = 'olx'
@@ -46,6 +50,19 @@ class CLI(object):
                             action='version',
                             help="show version",
                             version='%(prog)s ' + __version__)
+        parser.add_argument('-v', '--verbose',
+                            action='count',
+                            dest='verbosity',
+                            default=0,
+                            help=("verbose output "
+                                  "(repeat for increased verbosity)"))
+        parser.add_argument('-q', '--quiet',
+                            action='store_const',
+                            const=-1,
+                            default=0,
+                            dest='verbosity',
+                            help=("quiet output "
+                                  "(show errors only)"))
 
         nr_help = 'Prepare a local source tree for a new course run'
         nr_parser = subparsers.add_parser('new-run',
@@ -78,6 +95,104 @@ class CLI(object):
         a_parser.add_argument('-r', '--root-directory',
                               default='.',
                               help="Root directory of course files")
+
+        t_help = 'Retrieve an Open edX CMS REST API token'
+        t_epilog = ('You can also set the OLX_LMS_URL, '
+                    'OLX_LMS_CLIENT_ID, '
+                    'and OLX_LMS_CLIENT_SECRET environment variables '
+                    'instead of the --url, '
+                    '--client-id, and '
+                    '--client-secret options.')
+        t_parser = subparsers.add_parser('token',
+                                         help=t_help,
+                                         epilog=t_epilog)
+        # Using os.getenv(var) here rather than os.environ, because
+        # os.getenv() returns None if the envar is unset, as opposed
+        # to os.environ[var] which would return KeyError.
+        t_parser.add_argument('--url',
+                              default=os.getenv('OLX_LMS_URL'),
+                              help='Open edX CMS URL')
+        t_parser.add_argument('--client-id',
+                              default=os.getenv('OLX_LMS_CLIENT_ID'),
+                              metavar='ID',
+                              help=('Open edX CMS Django OAuth '
+                                    'Toolkit client ID'))
+        t_parser.add_argument('--client-secret',
+                              default=os.getenv('OLX_LMS_CLIENT_SECRET'),
+                              metavar='SECRET',
+                              help=('Open edX CMS Django OAuth '
+                                    'Toolkit client secret'))
+
+        u_help = 'Upload a course archive into the Open edX content store'
+        u_epilog = ('You can also set the OLX_CMS_URL '
+                    'and OLX_CMS_TOKEN environment variables '
+                    'instead of the --url and '
+                    '--token options.')
+        u_parser = subparsers.add_parser('upload',
+                                         help=u_help,
+                                         epilog=u_epilog)
+        u_parser.add_argument('--url',
+                              default=os.getenv('OLX_CMS_URL'),
+                              help='Open edX CMS URL')
+        u_parser.add_argument('--token',
+                              default=os.getenv('OLX_CMS_TOKEN'),
+                              help='Open edX REST API token')
+        u_parser.add_argument('-f',
+                              '--file',
+                              required=True,
+                              help=('File to be uploaded. '
+                                    'This must be a valid Open edX '
+                                    'course archive.'))
+        u_parser.add_argument('-c',
+                              '--course-id',
+                              help=('Full Open edX course ID, in '
+                                    '"course-v1:org+course+run" form. '
+                                    'If unspecified, the course ID is '
+                                    'detected from the course.xml file '
+                                    'found the course archive.'))
+        u_parser.add_argument('--wait',
+                              default=False,
+                              action='store_true',
+                              help=('Wait for the course import '
+                                    'to fully complete. If unset, '
+                                    'the command returns as soon '
+                                    'as the CMS has accepted the upload, '
+                                    'and returns a task ID that '
+                                    'can subsequently be checked with '
+                                    '"%s status".' % CANONICAL_COMMAND_NAME))
+
+        s_help = 'Check the status of a course upload task'
+        s_epilog = ('You can also set the OLX_CMS_URL '
+                    'and OLX_CMS_TOKEN environment variables '
+                    'instead of the --url and '
+                    '--token options.')
+        s_parser = subparsers.add_parser('status',
+                                         help=s_help,
+                                         epilog=s_epilog)
+        s_parser.add_argument('--url',
+                              default=os.getenv('OLX_CMS_URL'),
+                              help='Open edX CMS URL')
+        s_parser.add_argument('--token',
+                              default=os.getenv('OLX_CMS_TOKEN'),
+                              help='Open edX REST API token')
+        s_parser.add_argument('-f',
+                              '--file',
+                              required=True,
+                              help=('File to be uploaded. '
+                                    'This must be a valid Open edX '
+                                    'course archive.'))
+        s_parser.add_argument('-c',
+                              '--course-id',
+                              help=('Full Open edX course ID, in '
+                                    '"course-v1:org+course+run" form. '
+                                    'If unspecified, the course ID is '
+                                    'detected from the course.xml file '
+                                    'found the course archive.'))
+        s_parser.add_argument('-t',
+                              '--task-id',
+                              required=True,
+                              help=('Task ID, as returned from '
+                                    '%s upload' % CANONICAL_COMMAND_NAME))
 
         self.parser = parser
 
@@ -151,7 +266,7 @@ class CLI(object):
 
             if create_branch:
                 helper.add_to_branch()
-                sys.stderr.write(helper.message)
+                logging.warn(helper.message)
 
         except CLIException:
             raise
@@ -164,7 +279,22 @@ class CLI(object):
             # "raise CLIException('Failed to render templates:') from t
             raise CLIException('Failed to render templates:\n' + str(t))
 
-        sys.stderr.write("All done!\n")
+        logging.info("All done!")
+
+    def setup_logging(self, verbosity):
+        # Python log levels go from 10 (DEBUG) to 50 (CRITICAL),
+        # our verbosity argument goes from -1 (-q) to 2 (-vv).
+        # We never want to suppress error and critical messages,
+        # and default to the OLX_LOG_LEVEL environment variable,
+        # and if *that's* unset, use 30 (WARNING). Hence:
+        env_loglevel = os.getenv('OLX_LOG_LEVEL', 'WARNING').upper()
+        base_loglevel = getattr(logging, env_loglevel)
+
+        verbosity = min(verbosity, 2)
+        loglevel = base_loglevel - (verbosity * 10)
+
+        logging.basicConfig(level=loglevel,
+                            format='%(message)s')
 
     def archive(self, root_directory='.'):
         base_name = "archive"
@@ -172,6 +302,42 @@ class CLI(object):
                                base_name)
 
         helper.make_archive()
+
+    def token(self,
+              url,
+              client_id,
+              client_secret):
+
+        helper = TokenHelper(url,
+                             client_id,
+                             client_secret)
+        return helper.fetch_token()
+
+    def upload(self,
+               url,
+               file,
+               token,
+               course_id,
+               wait):
+
+        helper = UploadHelper(url,
+                              archive=file,
+                              token=token,
+                              course_id=course_id)
+        return helper.upload(wait)
+
+    def status(self,
+               url,
+               file,
+               token,
+               course_id,
+               task_id):
+
+        helper = UploadHelper(url,
+                              archive=file,
+                              token=token,
+                              course_id=course_id)
+        return helper.fetch_upload_task_state(task_id)
 
     def main(self, argv=sys.argv):
         """Main CLI entry point.
@@ -206,17 +372,31 @@ class CLI(object):
 
         opts = self.parse_args(argv[1:])
 
+        self.setup_logging(opts.pop('verbosity') or 0)
+
         # Invoke the subcommand, passing the parsed command line
         # options in as kwargs
-        getattr(self, opts.pop('subcommand').replace('-', '_'))(**opts)
+        ret = getattr(self,
+                      opts.pop('subcommand').replace('-', '_'))(**opts)
+
+        # Subcommands may issue a return code or text output, which
+        # might be meant to be parsed or piped to other programs. This
+        # output is not emitted via a logging call (where it goes to
+        # stderr), but via the print function and thus to stdout.
+        if ret:
+            print(ret)
 
 
 def main(argv=sys.argv):
     try:
         CLI().main(argv)
-    except CLIException as c:
-        sys.stderr.write(str(c))
-        sys.exit(1)
+    except Exception as e:
+        sys.stderr.write('%s\n' % str(e))
+        logging.debug('', exc_info=True)
+        try:
+            sys.exit(e.errno)
+        except AttributeError:
+            sys.exit(1)
 
 
 if __name__ == "__main__":

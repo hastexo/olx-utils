@@ -23,10 +23,7 @@ class GitHelper(object):
         if self.branch_exists():
             message = (
                 "The target git branch already exists.  "
-                "Please delete it and try again.\n"
-                "You can do so with: \n"
-                "\n"
-                "git branch -d {}\n"
+                "Please delete it and try again."
             )
             raise GitHelperException(message.format(self.branch))
 

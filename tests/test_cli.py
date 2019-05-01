@@ -1,10 +1,12 @@
 from __future__ import unicode_literals
 
 import shlex
-
 import sys
 
+from datetime import datetime
+
 from olxutils import cli
+from olxutils.cli import CLI, CLIException
 
 # This is extraordinarily ugly, but it's evidently the only option to
 # replace sys.stderr with a StringIO instance in a way that it works
@@ -43,21 +45,20 @@ class OLXUtilsCLITestCase(TestCase):
             command.insert(1, self.SUBCOMMAND)
         return ' '.join(command)
 
+    @patch('sys.stderr', new_callable=StringIO)
     def execute_and_check_error(self,
                                 cmdline,
-                                expected_output):
+                                expected_output,
+                                mock_stderr):
         args = shlex.split(cmdline)
-        stderr = StringIO()
 
         with patch.multiple(sys,
-                            argv=args,
-                            stderr=stderr):
+                            argv=args):
             with self.assertRaises(SystemExit) as se:
                 cli.main(sys.argv)
             self.assertNotEqual(se.exception.code, 0)
-            sys.stderr.seek(0)
             self.assertIn(expected_output,
-                          sys.stderr.read())
+                          mock_stderr.getvalue())
 
     def test_invalid_name(self):
         cmdline = self.create_command('_base 2019-01-01 2019-01-31')
@@ -78,26 +79,54 @@ class OLXUtilsCLITestCase(TestCase):
                                      expected_output)
 
 
+class NewRunTestCase(TestCase):
+    """
+    Run the CLI's new_run method directly
+    """
+
+    def execute_and_check_error(self,
+                                expected_output,
+                                *args):
+        with self.assertRaises(CLIException) as e:
+            CLI().new_run(*args)
+        self.assertIn(expected_output, str(e.exception))
+
+    def test_invalid_name(self):
+        args = ('_base',
+                datetime.strptime('2019-01-01', "%Y-%m-%d"),
+                datetime.strptime('2019-01-31', "%Y-%m-%d"))
+
+        expected_output = "This run name is reserved."
+        self.execute_and_check_error(expected_output,
+                                     *args)
+
+    def test_end_before_start_date(self):
+        args = ('foo',
+                datetime.strptime('2019-02-01', "%Y-%m-%d"),
+                datetime.strptime('2019-01-31', "%Y-%m-%d"))
+        expected_output = "must be greater than or equal"
+        self.execute_and_check_error(expected_output,
+                                     *args)
+
+
 class OLXUtilsCustomArgsTestCase(OLXUtilsCLITestCase):
     """
     Run the CLI by importing the cli module and invoking its main()
     method, overriding its "args" argument
     """
 
+    @patch('sys.stderr', new_callable=StringIO)
     def execute_and_check_error(self,
                                 cmdline,
-                                expected_output):
+                                expected_output,
+                                mock_stderr):
         args = shlex.split(cmdline)
-        stderr = StringIO()
 
-        with patch.multiple(sys,
-                            stderr=stderr):
-            with self.assertRaises(SystemExit) as se:
-                cli.main(args)
-            self.assertNotEqual(se.exception.code, 0)
-            stderr.seek(0)
-            self.assertIn(expected_output,
-                          stderr.read())
+        with self.assertRaises(SystemExit) as se:
+            cli.main(args)
+        self.assertNotEqual(se.exception.code, 0)
+        self.assertIn(expected_output,
+                      mock_stderr.getvalue())
 
 
 class NewRunPyCustomArgsTestCase(OLXUtilsCustomArgsTestCase):
