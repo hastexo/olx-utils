@@ -132,10 +132,8 @@ class CLI(object):
                                          help=u_help,
                                          epilog=u_epilog)
         u_parser.add_argument('--url',
-                              default=os.getenv('OLX_CMS_URL'),
                               help='Open edX CMS URL')
         u_parser.add_argument('--token',
-                              default=os.getenv('OLX_CMS_TOKEN'),
                               help='Open edX REST API token')
         u_parser.add_argument('-f',
                               '--file',
@@ -170,10 +168,8 @@ class CLI(object):
                                          help=s_help,
                                          epilog=s_epilog)
         s_parser.add_argument('--url',
-                              default=os.getenv('OLX_CMS_URL'),
                               help='Open edX CMS URL')
         s_parser.add_argument('--token',
-                              default=os.getenv('OLX_CMS_TOKEN'),
                               help='Open edX REST API token')
         s_parser.add_argument('-f',
                               '--file',
@@ -308,39 +304,45 @@ class CLI(object):
         helper.make_archive()
 
     def token(self,
-              url,
-              client_id,
-              client_secret):
+              url=None,
+              client_id=None,
+              client_secret=None):
 
-        helper = TokenHelper(url,
-                             client_id,
-                             client_secret)
+        helper = TokenHelper(
+            url or os.getenv('OLX_LMS_URL'),
+            client_id or os.getenv('OLX_LMS_CLIENT_ID'),
+            client_secret or os.getenv('OLX_LMS_CLIENT_SECRET')
+        )
         return helper.fetch_token()
 
     def upload(self,
-               url,
-               file,
-               token,
-               course_id,
-               wait):
+               url=None,
+               file='archive.tar.gz',
+               token=None,
+               course_id=None,
+               wait=False):
 
-        helper = UploadHelper(url,
-                              archive=file,
-                              token=token,
-                              course_id=course_id)
+        helper = UploadHelper(
+            url or os.getenv('OLX_CMS_URL'),
+            archive=file,
+            token=token or os.getenv('OLX_CMS_TOKEN'),
+            course_id=course_id
+        )
         return helper.upload(wait)
 
     def status(self,
-               url,
-               file,
-               token,
-               course_id,
-               task_id):
+               task_id,
+               url=None,
+               file='archive.tar.gz',
+               token=None,
+               course_id=None):
 
-        helper = UploadHelper(url,
-                              archive=file,
-                              token=token,
-                              course_id=course_id)
+        helper = UploadHelper(
+            url or os.getenv('OLX_CMS_URL'),
+            archive=file,
+            token=token or os.getenv('OLX_CMS_TOKEN'),
+            course_id=course_id
+        )
         return helper.fetch_upload_task_state(task_id)
 
     def main(self, argv=sys.argv):
