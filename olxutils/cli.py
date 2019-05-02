@@ -196,6 +196,8 @@ class CLI(object):
 
         self.parser = parser
 
+        self.setup_logging()
+
     def parse_args(self, args=sys.argv[1:]):
 
         opts = self.parser.parse_args(args)
@@ -281,20 +283,22 @@ class CLI(object):
 
         logging.info("All done!")
 
-    def setup_logging(self, verbosity):
+    def setup_logging(self):
+        env_loglevel = os.getenv('OLX_LOG_LEVEL', 'WARNING').upper()
+        loglevel = getattr(logging, env_loglevel)
+        logging.basicConfig(level=loglevel,
+                            format='%(message)s')
+
+    def apply_verbosity(self, verbosity):
         # Python log levels go from 10 (DEBUG) to 50 (CRITICAL),
         # our verbosity argument goes from -1 (-q) to 2 (-vv).
         # We never want to suppress error and critical messages,
         # and default to the OLX_LOG_LEVEL environment variable,
         # and if *that's* unset, use 30 (WARNING). Hence:
-        env_loglevel = os.getenv('OLX_LOG_LEVEL', 'WARNING').upper()
-        base_loglevel = getattr(logging, env_loglevel)
-
+        root = logging.getLogger()
         verbosity = min(verbosity, 2)
-        loglevel = base_loglevel - (verbosity * 10)
-
-        logging.basicConfig(level=loglevel,
-                            format='%(message)s')
+        loglevel = root.getEffectiveLevel() - (verbosity * 10)
+        root.setLevel(loglevel)
 
     def archive(self, root_directory='.'):
         base_name = "archive"
@@ -372,7 +376,7 @@ class CLI(object):
 
         opts = self.parse_args(argv[1:])
 
-        self.setup_logging(opts.pop('verbosity') or 0)
+        self.apply_verbosity(opts.pop('verbosity') or 0)
 
         # Invoke the subcommand, passing the parsed command line
         # options in as kwargs
