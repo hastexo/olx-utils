@@ -16,6 +16,7 @@ class GitHelper(object):
         self.run = run
         self.branch = self.BRANCH_FORMAT % run
         self.message = ""
+        self.old_branch = None
 
     def _git_command(self, args):
         command = "git %s" % args
@@ -30,6 +31,12 @@ class GitHelper(object):
             )
             raise GitHelperException(message.format(self.branch))
 
+        try:
+            self.old_branch = self._git_command("rev-parse --abbrev-ref HEAD")
+        except CalledProcessError:
+            # No previously existing HEAD; this is a fresh
+            # repository with no commits.
+            pass
         try:
             self._git_command("checkout -b {}".format(self.branch))
         except CalledProcessError:
@@ -67,9 +74,9 @@ class GitHelper(object):
             "\n"
             "To push this new branch upstream, run:\n"
             "\n"
-            "$ git push -u origin {}\n"
+            "$ git push -u origin {s.branch}\n"
             "\n"
-            "To switch back to master, run:\n"
+            "To switch back to {s.old_branch}, run:\n"
             "\n"
-            "$ git checkout master\n"
-        ).format(self.branch)
+            "$ git checkout {s.old_branch}\n"
+        ).format(s=self)
