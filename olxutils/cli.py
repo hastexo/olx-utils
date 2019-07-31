@@ -132,10 +132,8 @@ class CLI(object):
                                          help=u_help,
                                          epilog=u_epilog)
         u_parser.add_argument('--url',
-                              default=os.getenv('OLX_CMS_URL'),
                               help='Open edX CMS URL')
         u_parser.add_argument('--token',
-                              default=os.getenv('OLX_CMS_TOKEN'),
                               help='Open edX REST API token')
         u_parser.add_argument('-f',
                               '--file',
@@ -170,10 +168,8 @@ class CLI(object):
                                          help=s_help,
                                          epilog=s_epilog)
         s_parser.add_argument('--url',
-                              default=os.getenv('OLX_CMS_URL'),
                               help='Open edX CMS URL')
         s_parser.add_argument('--token',
-                              default=os.getenv('OLX_CMS_TOKEN'),
                               help='Open edX REST API token')
         s_parser.add_argument('-f',
                               '--file',
@@ -195,6 +191,8 @@ class CLI(object):
                                     '%s upload' % CANONICAL_COMMAND_NAME))
 
         self.parser = parser
+
+        self.setup_logging()
 
     def parse_args(self, args=sys.argv[1:]):
 
@@ -281,20 +279,22 @@ class CLI(object):
 
         logging.info("All done!")
 
-    def setup_logging(self, verbosity):
+    def setup_logging(self):
+        env_loglevel = os.getenv('OLX_LOG_LEVEL', 'WARNING').upper()
+        loglevel = getattr(logging, env_loglevel)
+        logging.basicConfig(level=loglevel,
+                            format='%(message)s')
+
+    def apply_verbosity(self, verbosity):
         # Python log levels go from 10 (DEBUG) to 50 (CRITICAL),
         # our verbosity argument goes from -1 (-q) to 2 (-vv).
         # We never want to suppress error and critical messages,
         # and default to the OLX_LOG_LEVEL environment variable,
         # and if *that's* unset, use 30 (WARNING). Hence:
-        env_loglevel = os.getenv('OLX_LOG_LEVEL', 'WARNING').upper()
-        base_loglevel = getattr(logging, env_loglevel)
-
+        root = logging.getLogger()
         verbosity = min(verbosity, 2)
-        loglevel = base_loglevel - (verbosity * 10)
-
-        logging.basicConfig(level=loglevel,
-                            format='%(message)s')
+        loglevel = root.getEffectiveLevel() - (verbosity * 10)
+        root.setLevel(loglevel)
 
     def archive(self, root_directory='.'):
         base_name = "archive"
@@ -304,39 +304,45 @@ class CLI(object):
         helper.make_archive()
 
     def token(self,
-              url,
-              client_id,
-              client_secret):
+              url=None,
+              client_id=None,
+              client_secret=None):
 
-        helper = TokenHelper(url,
-                             client_id,
-                             client_secret)
+        helper = TokenHelper(
+            url or os.getenv('OLX_LMS_URL'),
+            client_id or os.getenv('OLX_LMS_CLIENT_ID'),
+            client_secret or os.getenv('OLX_LMS_CLIENT_SECRET')
+        )
         return helper.fetch_token()
 
     def upload(self,
-               url,
-               file,
-               token,
-               course_id,
-               wait):
+               url=None,
+               file='archive.tar.gz',
+               token=None,
+               course_id=None,
+               wait=False):
 
-        helper = UploadHelper(url,
-                              archive=file,
-                              token=token,
-                              course_id=course_id)
+        helper = UploadHelper(
+            url or os.getenv('OLX_CMS_URL'),
+            archive=file,
+            token=token or os.getenv('OLX_CMS_TOKEN'),
+            course_id=course_id
+        )
         return helper.upload(wait)
 
     def status(self,
-               url,
-               file,
-               token,
-               course_id,
-               task_id):
+               task_id,
+               url=None,
+               file='archive.tar.gz',
+               token=None,
+               course_id=None):
 
-        helper = UploadHelper(url,
-                              archive=file,
-                              token=token,
-                              course_id=course_id)
+        helper = UploadHelper(
+            url or os.getenv('OLX_CMS_URL'),
+            archive=file,
+            token=token or os.getenv('OLX_CMS_TOKEN'),
+            course_id=course_id
+        )
         return helper.fetch_upload_task_state(task_id)
 
     def main(self, argv=sys.argv):
@@ -372,7 +378,7 @@ class CLI(object):
 
         opts = self.parse_args(argv[1:])
 
-        self.setup_logging(opts.pop('verbosity') or 0)
+        self.apply_verbosity(opts.pop('verbosity') or 0)
 
         # Invoke the subcommand, passing the parsed command line
         # options in as kwargs
