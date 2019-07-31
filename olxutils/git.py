@@ -45,7 +45,7 @@ class GitHelper(object):
 
     def branch_exists(self):
         try:
-            self._git_command("rev-parse --verify {}".format(self.branch))
+            self._git_command("rev-parse -q --verify {}".format(self.branch))
         except CalledProcessError:
             return False
 
