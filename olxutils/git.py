@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import logging
 from subprocess import check_output, CalledProcessError
 
 
@@ -17,7 +18,9 @@ class GitHelper(object):
         self.message = ""
 
     def _git_command(self, args):
-        return check_output("git %s" % args, shell=True)
+        command = "git %s" % args
+        logging.debug("+ %s" % command)
+        return check_output(command, shell=True).strip()
 
     def create_branch(self):
         if self.branch_exists():
