@@ -15,7 +15,6 @@ class GitHelper(object):
     def __init__(self, run):
         self.run = run
         self.branch = self.BRANCH_FORMAT % run
-        self.message = ""
         self.old_branch = None
 
     def _git_command(self, args):
@@ -70,7 +69,7 @@ class GitHelper(object):
             self._git_command("commit -m 'New run: {}'".format(self.run))
         except CalledProcessError:
             raise GitHelperException('Error committing new run.')
-        self.message = (
+        message = (
             "\n"
             "To push this new branch upstream, run:\n"
             "\n"
@@ -80,3 +79,4 @@ class GitHelper(object):
             "\n"
             "$ git checkout {s.old_branch}\n"
         ).format(s=self)
+        logging.warn(message)

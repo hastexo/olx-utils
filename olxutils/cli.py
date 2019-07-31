@@ -264,7 +264,6 @@ class CLI(object):
 
             if create_branch:
                 helper.add_to_branch()
-                logging.warn(helper.message)
 
         except CLIException:
             raise
