@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import os
+import logging
 import shutil
 import tempfile
 
@@ -17,6 +18,8 @@ class ArchiveHelper(object):
         self.base_name = base_name
         self.root_directory = root_directory
         self.format = 'gztar'
+        logging.info("Creating %s archive from %s" % (self.format,
+                                                      self.root_directory))
 
     def copy_files(self, destdir):
         # We currently don't functionally distinguish between files
@@ -47,14 +50,20 @@ class ArchiveHelper(object):
         for d in directories:
             source = os.path.join(self.root_directory, d)
             if os.path.exists(source):
+                logging.debug("Adding directory %s" % source)
                 dest = os.path.join(destdir, 'course', d)
                 shutil.copytree(source, dest,
                                 symlinks=True)
+            else:
+                logging.debug("Skipping directory %s (not found)" % source)
         for f in files:
             source = os.path.join(self.root_directory, f)
             if os.path.exists(source):
+                logging.debug("Adding file %s" % source)
                 dest = os.path.join(destdir, 'course', f)
                 shutil.copy2(source, dest)
+            else:
+                logging.debug("Skipping file %s (not found)" % source)
 
     def make_archive(self):
         # When dropping Python 2 support, this should be turned into
@@ -65,5 +74,6 @@ class ArchiveHelper(object):
                                        self.format,
                                        root_dir=tempdir,
                                        base_dir='course')
+        logging.info("Created archive: %s" % filename)
         shutil.rmtree(tempdir)
         return filename

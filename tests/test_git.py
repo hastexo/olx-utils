@@ -55,7 +55,6 @@ class GitHelperTestCase(TestCase):
         self.assertEqual(self.helper.run, self.RUN_NAME)
         self.assertEqual(self.helper.branch,
                          'run/%s' % self.RUN_NAME)
-        self.assertFalse(self.helper.message)
 
     def test_create_branch(self):
         """
@@ -113,9 +112,6 @@ class GitHelperTestCase(TestCase):
         self.create_file('Bye bye')
         # Should add all files create since the last commit
         self.helper.add_to_branch()
-        # Should have been set to a nonempty string when
-        # the commit was successful
-        self.assertTrue(self.helper.message)
 
         # We should now have one commit on the master branch,
         # and two on the run/foo branch

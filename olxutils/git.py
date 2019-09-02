@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import logging
 from subprocess import check_output, CalledProcessError
 
 
@@ -14,10 +15,12 @@ class GitHelper(object):
     def __init__(self, run):
         self.run = run
         self.branch = self.BRANCH_FORMAT % run
-        self.message = ""
+        self.old_branch = None
 
     def _git_command(self, args):
-        return check_output("git %s" % args, shell=True)
+        command = "git %s" % args
+        logging.debug("+ %s" % command)
+        return check_output(command, shell=True).strip()
 
     def create_branch(self):
         if self.branch_exists():
@@ -28,6 +31,12 @@ class GitHelper(object):
             raise GitHelperException(message.format(self.branch))
 
         try:
+            self.old_branch = self._git_command("rev-parse --abbrev-ref HEAD")
+        except CalledProcessError:
+            # No previously existing HEAD; this is a fresh
+            # repository with no commits.
+            pass
+        try:
             self._git_command("checkout -b {}".format(self.branch))
         except CalledProcessError:
             raise GitHelperException('Error creating '
@@ -35,7 +44,7 @@ class GitHelper(object):
 
     def branch_exists(self):
         try:
-            self._git_command("rev-parse --verify {}".format(self.branch))
+            self._git_command("rev-parse -q --verify {}".format(self.branch))
         except CalledProcessError:
             return False
 
@@ -60,13 +69,14 @@ class GitHelper(object):
             self._git_command("commit -m 'New run: {}'".format(self.run))
         except CalledProcessError:
             raise GitHelperException('Error committing new run.')
-        self.message = (
+        message = (
             "\n"
             "To push this new branch upstream, run:\n"
             "\n"
-            "$ git push -u origin {}\n"
+            "$ git push -u origin {s.branch}\n"
             "\n"
-            "To switch back to master, run:\n"
+            "To switch back to {s.old_branch}, run:\n"
             "\n"
-            "$ git checkout master\n"
-        ).format(self.branch)
+            "$ git checkout {s.old_branch}\n"
+        ).format(s=self)
+        logging.warn(message)
