@@ -39,9 +39,12 @@ class ArchiveHelper(object):
             'conditional',
             'course',
             'drafts',
+            'library_content',
             'markdown',
+            'problem',
             'tabs',
             'vertical',
+            'video',
         ]
         files = [
             # apparently essential:
