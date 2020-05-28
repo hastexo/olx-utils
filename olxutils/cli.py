@@ -95,6 +95,9 @@ class CLI(object):
         a_parser.add_argument('-r', '--root-directory',
                               default='.',
                               help="Root directory of course files")
+        a_parser.add_argument('-b', '--base-name',
+                              default='archive',
+                              help="Name of the archive (without .tar.gz)")
 
         t_help = 'Retrieve an Open edX CMS REST API token'
         t_epilog = ('You can also set the OLX_LMS_URL, '
@@ -295,8 +298,7 @@ class CLI(object):
         loglevel = root.getEffectiveLevel() - (verbosity * 10)
         root.setLevel(loglevel)
 
-    def archive(self, root_directory='.'):
-        base_name = "archive"
+    def archive(self, root_directory='.', base_name="archive"):
         helper = ArchiveHelper(root_directory,
                                base_name)
 
