@@ -1,4 +1,4 @@
-|PyPI version| |Build Status| |codecov|
+|PyPI version| |Build Status|
 
 OLX Utilities
 =============
@@ -60,7 +60,5 @@ for details.
 
 .. |PyPI version| image:: https://img.shields.io/pypi/v/olx-utils.svg
    :target: https://pypi.python.org/pypi/olx-utils
-.. |Build Status| image:: https://travis-ci.org/hastexo/olx-utils.svg?branch=master
-   :target: https://travis-ci.org/hastexo/olx-utils
-.. |codecov| image:: https://codecov.io/gh/hastexo/olx-utils/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/hastexo/olx-utils
+.. |Build Status| image:: https://github.com/hastexo/hastexo-xblock/workflows/Python%20package/badge.svg
+   :target: https://github.com/hastexo/hastexo-xblock/actions?query=workflow%3A%22Python+package%22
