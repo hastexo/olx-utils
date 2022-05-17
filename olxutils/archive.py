@@ -42,6 +42,7 @@ class ArchiveHelper(object):
             'library_content',
             'markdown',
             'problem',
+            'split_test',
             'tabs',
             'vertical',
             'video',
