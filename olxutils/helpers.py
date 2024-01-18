@@ -57,9 +57,9 @@ class OLXHelpers(object):
         swift_path = environ.get('SWIFT_PATH')
         swift_tempurl_key = environ.get('SWIFT_TEMPURL_KEY')
 
-        assert(swift_endpoint)
-        assert(swift_path)
-        assert(swift_tempurl_key)
+        assert (swift_endpoint)
+        assert (swift_path)
+        assert (swift_tempurl_key)
 
         path = "{}{}".format(swift_path, path)
         timestamp = int(date.strftime("%s"))
