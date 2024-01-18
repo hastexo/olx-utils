@@ -64,7 +64,9 @@ class GitHelperTestCase(TestCase):
         self.add_and_commit('Test 1')
 
         self.assertFalse(self.helper.branch_exists())
-        self.assertIn('master', self.repo.branches)
+        self.assertTrue(
+            ('master' in self.repo.branches) or ('main' in self.repo.branches)
+        )
         self.helper.create_branch()
         self.assertIn('run/%s' % self.RUN_NAME,
                       self.repo.branches)
@@ -79,7 +81,9 @@ class GitHelperTestCase(TestCase):
         self.add_and_commit('Test 1')
 
         self.assertFalse(self.helper.branch_exists())
-        self.assertIn('master', self.repo.branches)
+        self.assertTrue(
+            ('master' in self.repo.branches) or ('main' in self.repo.branches)
+        )
 
         # Simulate an empty PATH, so a git command fails
         with patch.dict(os.environ,
@@ -113,11 +117,15 @@ class GitHelperTestCase(TestCase):
         # Should add all files create since the last commit
         self.helper.add_to_branch()
 
-        # We should now have one commit on the master branch,
+        # We should now have one commit on the default branch,
         # and two on the run/foo branch
-        master = self.repo.heads.master
+        default = ""
+        try:
+            default = self.repo.heads.main
+        except AttributeError:
+            default = self.repo.heads.master
         run = self.repo.heads['run/%s' % self.RUN_NAME]
-        self.assertEqual(len(master.commit.tree), 1)
+        self.assertEqual(len(default.commit.tree), 1)
         self.assertEqual(len(run.commit.tree), 2)
 
         # The commit message on the HEAD of the run/foo branch should
