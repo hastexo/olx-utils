@@ -13,6 +13,8 @@ jobs:
           - '3.8'
           - '3.9'
           - '3.10'
+          - '3.11'
+          - '3.12'
 
     steps:
     - name: Check out code
@@ -23,10 +25,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install tox tox-gh-actions tox-pip-version 'setuptools_scm<6'
+        pip install tox tox-gh-actions setuptools_scm
     - name: Test with tox
-      env:
-        TOX_PIP_VERSION: '20.2.4'
       run: tox
     - name: Upload coverage data
       uses: actions/upload-artifact@v2

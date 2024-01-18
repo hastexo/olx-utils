@@ -119,7 +119,7 @@ class GitHelperTestCase(TestCase):
 
         # We should now have one commit on the default branch,
         # and two on the run/foo branch
-        default = ""
+        default = None
         try:
             default = self.repo.heads.main
         except AttributeError:
